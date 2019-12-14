@@ -14,6 +14,7 @@
   "require": {
     "php": ">=7.1",
     "ext-json": "*",
+    "stk2k/file": "~0.1",
     "knot-lib/support": "~0.1"
   },
   "require-dev": {
