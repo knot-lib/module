@@ -72,12 +72,21 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
                 continue;
             }
 
-            /** @var ModuleInterface $module */
-            $module_factory = $this->getModuleFactory();
-            $module = $module_factory ? $module_factory->createModule($module_class) : null;
+            // create module instance
+            $module = null;
+            foreach($this->getModuleFactories() as $factory)
+            {
+                $module = $factory->createModule($module_class, $this);
+                if ($module_class instanceof ModuleInterface){
+                    break;
+                }
+            }
             if (!$module){
+                // module factories did not create instance, so try to create by default constructor.
                 $module = new $module_class();
             }
+
+            // install the module
             $module->install($this);
             $this->addInstalledModule($module_class);
         }
