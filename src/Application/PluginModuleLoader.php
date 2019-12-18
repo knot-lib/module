@@ -9,33 +9,37 @@ use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Module\Exception\ClassNotFoundException;
 use KnotLib\Module\Exception\ModuleException;
 
-abstract class PluginApplication extends SimpleApplication
+final class PluginModuleLoader
 {
     const NAMESPACE_SEPARATOR = '\\';
     const PLUGIN_CONFIG_FILENAME = 'plugin_files.php';
 
     /**
-     * Install required modules
+     * Load plugin modules
+     *
+     * @param ApplicationInterface $app
+     *
+     * @return bool
      *
      * @throws
      */
-    public function install() : ApplicationInterface
+    public static function loadPluginModules(ApplicationInterface $app) : bool
     {
         // get plugin dir
-        if (!$this->filesystem()->directoryExists(Dir::PLUGIN)){
-            return parent::install();
+        if (!$app->filesystem()->directoryExists(Dir::PLUGIN)){
+            return false;
         }
-        $plugin_dir = $this->filesystem()->getDirectory(Dir::PLUGIN);
+        $plugin_dir = $app->filesystem()->getDirectory(Dir::PLUGIN);
 
         if (!is_dir($plugin_dir)){
-            return parent::install();
+            return false;
         }
 
         // read plugin_config.json
         $plugin_config_file = $plugin_dir . DIRECTORY_SEPARATOR . self::PLUGIN_CONFIG_FILENAME;
 
         if (!is_file($plugin_config_file)){
-            return parent::install();
+            return false;
         }
 
         /** @noinspection PhpIncludeInspection */
@@ -90,14 +94,14 @@ abstract class PluginApplication extends SimpleApplication
                 throw new ModuleException('requiredModules method returns invalid type: ' . $plugin_class);
             }
             foreach($required_modules as $module){
-                $this->requireModule($module);
+                $app->requireModule($module);
             }
 
             // requrire the module
-            $this->requireModule($plugin_class);
+            $app->requireModule($plugin_class);
         }
 
-        return parent::install();
+        return true;
     }
 
 }

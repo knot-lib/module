@@ -5,7 +5,7 @@ namespace KnotLib\Module\Test;
 
 use PHPUnit\Framework\TestCase;
 
-final class PluginApplicationTest extends TestCase
+final class PloginModuleLoaderTest extends TestCase
 {
     /**
      * @runInSeparateProcess
@@ -14,7 +14,7 @@ final class PluginApplicationTest extends TestCase
      */
     public function testInstall()
     {
-        $app = new TestPluginApplication(TestFileSystemFactory::createFileSystem());
+        $app = new TestPluginLoadableApplication(TestFileSystemFactory::createFileSystem());
 
         ob_start();
         $app->install();
@@ -55,7 +55,7 @@ OUTPUT;
      */
     public function testNotInstall()
     {
-        $app = new TestPluginApplication(TestFileSystemFactory::createFileSystem(true));
+        $app = new TestPluginLoadableApplication(TestFileSystemFactory::createFileSystem(true));
 
         ob_start();
         $app->install();

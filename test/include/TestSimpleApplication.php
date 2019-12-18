@@ -10,7 +10,7 @@ final class TestSimpleApplication extends SimpleApplication
 {
     public static function type() : ApplicationType
     {
-        return ApplicationType::of(ApplicationType::TYPE_CLI);
+        return ApplicationType::of(ApplicationType::CLI);
     }
 
 }
