@@ -19,9 +19,6 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
      */
     public function install() : ApplicationInterface
     {
-        // configure application
-        $this->configure();
-
         // resolve module dependencies
         if (empty($this->getResolvedModules())){
 
