@@ -50,7 +50,9 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
         }
 
         // install modules
-        $this->installModules($this->getResolvedModules());
+        foreach($this->getResolvedModules() as $module){
+            $this->installModule($module);
+        }
 
         return $this;
     }
@@ -60,33 +62,30 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
      *
      * @throws
      */
-    public function installModules(array $modules) : ApplicationInterface
+    public function installModule(string $module_class) : ApplicationInterface
     {
-        foreach($modules as $module_class)
-        {
-            // skip if the module is already installed
-            if (in_array($module_class, $this->getInstalledModules())){
-                continue;
-            }
-
-            // create module instance
-            $module = null;
-            foreach($this->getModuleFactories() as $factory)
-            {
-                $module = $factory->createModule($module_class, $this);
-                if ($module_class instanceof ModuleInterface){
-                    break;
-                }
-            }
-            if (!$module){
-                // module factories did not create instance, so try to create by default constructor.
-                $module = new $module_class();
-            }
-
-            // install the module
-            $module->install($this);
-            $this->addInstalledModule($module_class);
+        // skip if the module is already installed
+        if (in_array($module_class, $this->getInstalledModules())){
+            return $this;
         }
+
+        // create module instance
+        $module = null;
+        foreach($this->getModuleFactories() as $factory)
+        {
+            $module = $factory->createModule($module_class, $this);
+            if ($module_class instanceof ModuleInterface){
+                break;
+            }
+        }
+        if (!$module){
+            // module factories did not create instance, so try to create by default constructor.
+            $module = new $module_class();
+        }
+
+        // install the module
+        $module->install($this);
+        $this->addInstalledModule($module_class);
 
         return $this;
     }
