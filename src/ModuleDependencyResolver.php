@@ -30,6 +30,7 @@ class ModuleDependencyResolver
      *
      * @return array
      *
+     * @throws CyclicDependencyException
      * @throws ModuleDependencyResolvingException
      */
     public function resolve(callable $explain_callback = null) : array

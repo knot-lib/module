@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace KnotLib\Module;
 
 use KnotLib\Kernel\Module\Components;
+use KnotLib\Module\Exception\CyclicDependencyException;
 use KnotLib\Module\Exception\InvalidComponentNameException;
 use KnotLib\Module\Exception\InvalidModuleFqcnException;
 use KnotLib\Module\Exception\MethodNotFoundException;
@@ -33,6 +34,7 @@ final class ModuleDependencyMap
      *
      * @param string $module
      *
+     * @throws CyclicDependencyException
      * @throws InvalidModuleFqcnException
      * @throws InvalidComponentNameException
      * @throws MethodNotFoundException
@@ -40,7 +42,8 @@ final class ModuleDependencyMap
      */
     public function addModuleDependencies(string $module)
     {
-        $this->map[$module] = self::resolveModuleDependencies($module, $this->modules_by_component);
+        $cyclic_check = [];
+        $this->map[$module] = self::resolveModuleDependencies($module, $this->modules_by_component, $cyclic_check);
     }
 
     /**
@@ -66,15 +69,17 @@ final class ModuleDependencyMap
     /**
      * @param string $module
      * @param array $modules_by_component
+     * @param array $cyclic_check
      *
      * @return array
      *
+     * @throws CyclicDependencyException
      * @throws InvalidModuleFqcnException
      * @throws InvalidComponentNameException
      * @throws MethodNotFoundException
      * @throws ModuleClassNotFoundException
      */
-    private static function resolveModuleDependencies(string $module, array $modules_by_component) : array
+    private static function resolveModuleDependencies(string $module, array $modules_by_component, array $cyclic_check) : array
     {
         $cyclic_check[] = $module;
 
@@ -92,7 +97,11 @@ final class ModuleDependencyMap
             }
             $ret[] = $m;
 
-            $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component));
+            if (in_array($m, $cyclic_check)){
+                throw new CyclicDependencyException($module, $m);
+            }
+
+            $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component, $cyclic_check));
         }
 
         $required_components = forward_static_call([$module, 'requiredComponents']);
@@ -104,7 +113,11 @@ final class ModuleDependencyMap
             foreach($modules as $m){
                 $ret[] = $m;
 
-                $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component));
+                if (in_array($m, $cyclic_check)){
+                    throw new CyclicDependencyException($module, $m);
+                }
+
+                $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component, $cyclic_check));
             }
         }
 
