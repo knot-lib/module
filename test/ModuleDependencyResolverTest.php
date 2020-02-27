@@ -515,26 +515,30 @@ class ModuleDependencyResolverTest extends TestCase
         try{
             $resolver->resolve(function($dependency_map, $modules_by_component){
                 $this->assertEquals([
-                    ModuleA::class => [
-                        ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
-                    ],
-                    ModuleB::class => [
-                        ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
-                    ],
-                    DiModule::class => [
-                        EventStreamModule::class, LoggerModule::class, CacheModule::class,
-                    ],
-                    EventStreamModule::class => [
-                        ExHandlerModule::class,
-                    ],
-                    LoggerModule::class => [
-                        EventStreamModule::class, ExHandlerModule::class,
-                    ],
-                    ExHandlerModule::class => [],
-                    CacheModule::class => [
-                        LoggerModule::class,
-                    ],
-                ], $dependency_map);
+                    ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
+                ], $dependency_map[ModuleA::class]);
+
+                $this->assertEquals([
+                    ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
+                ], $dependency_map[ModuleB::class]);
+
+                $this->assertEquals([
+                    EventStreamModule::class, ExHandlerModule::class,LoggerModule::class, CacheModule::class,
+                ], $dependency_map[DiModule::class]);
+
+                $this->assertEquals([
+                    ExHandlerModule::class,
+                ], $dependency_map[EventStreamModule::class]);
+
+                $this->assertEquals([
+                    EventStreamModule::class, ExHandlerModule::class,
+                ], $dependency_map[LoggerModule::class]);
+
+                $this->assertEquals([], $dependency_map[ExHandlerModule::class]);
+
+                $this->assertEquals([
+                    LoggerModule::class, EventStreamModule::class, ExHandlerModule::class,
+                ], $dependency_map[CacheModule::class]);
 
                 $this->assertEquals([
                     Components::MODULE => [ ModuleA::class, ModuleB::class ],

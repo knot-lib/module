@@ -3,15 +3,13 @@ declare(strict_types=1);
 
 namespace KnotLib\Module;
 
-use ArrayAccess;
 use KnotLib\Kernel\Module\Components;
-use KnotLib\Module\Exception\CyclicDependencyException;
 use KnotLib\Module\Exception\InvalidComponentNameException;
 use KnotLib\Module\Exception\InvalidModuleFqcnException;
 use KnotLib\Module\Exception\MethodNotFoundException;
 use KnotLib\Module\Exception\ModuleClassNotFoundException;
 
-final class ModuleDependencyMap implements ArrayAccess
+final class ModuleDependencyMap
 {
     /** @var array */
     private $map;
@@ -31,6 +29,8 @@ final class ModuleDependencyMap implements ArrayAccess
     }
 
     /**
+     * Resolve module dependencies and add to the map
+     *
      * @param string $module
      *
      * @throws InvalidModuleFqcnException
@@ -38,98 +38,21 @@ final class ModuleDependencyMap implements ArrayAccess
      * @throws MethodNotFoundException
      * @throws ModuleClassNotFoundException
      */
-    public function addModuleDependency(string $module)
+    public function addModuleDependencies(string $module)
     {
-        $this->map[$module] = $this->getModuleDependencies($module);
+        $this->map[$module] = self::resolveModuleDependencies($module, $this->modules_by_component);
     }
 
     /**
-     * Returns module's dependency
+     * Get dependent modules of a module
      *
      * @param string $module
      *
      * @return array
-     *
-     * @throws CyclicDependencyException
-     * @throws InvalidModuleFqcnException
      */
-    public function resolveModuleDependency(string $module) : array
+    public function getDependentModules(string $module)
     {
-        $child_check = [];
-        return $this->resolveModuleDependencyRecursive($module, $child_check);
-    }
-
-    /**
-     * @param string $module
-     * @param array $cyclic_check
-     *
-     * @return array
-     *
-     * @throws CyclicDependencyException
-     * @throws InvalidModuleFqcnException
-     */
-    private function resolveModuleDependencyRecursive(string $module, array $cyclic_check) : array
-    {
-        $cyclic_check[] = $module;
-
-        $ret = [];
-
-        $dependency_list = $this->map[$module] ?? [];
-        foreach($dependency_list as $m)
-        {
-            if (!class_exists($m)){
-                throw new InvalidModuleFqcnException($module);
-            }
-            if (in_array($m, $cyclic_check)){
-                throw new CyclicDependencyException($module, $m);
-            }
-
-            $child_check = $cyclic_check;
-            $deps = $this->resolveModuleDependencyRecursive($m, $child_check);
-
-            if (!empty($deps)){
-                $ret = array_merge($ret, $deps);
-            }
-            $ret[] = $m;
-        }
-        return array_values(array_unique($ret));
-    }
-
-    /**
-     * @param mixed $offset
-     *
-     * @return bool|void
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->map[$offset]);
-    }
-
-    /**
-     * @param mixed $offset
-     *
-     * @return mixed|void
-     */
-    public function offsetGet($offset)
-    {
-        return $this->map[$offset] ?? null;
-    }
-
-    /**
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->map[$offset] = $value;
-    }
-
-    /**
-     * @param mixed $offset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->map[$offset]);
+        return $this->map[$module];
     }
 
     /**
@@ -142,6 +65,7 @@ final class ModuleDependencyMap implements ArrayAccess
 
     /**
      * @param string $module
+     * @param array $modules_by_component
      *
      * @return array
      *
@@ -150,7 +74,7 @@ final class ModuleDependencyMap implements ArrayAccess
      * @throws MethodNotFoundException
      * @throws ModuleClassNotFoundException
      */
-    private function getModuleDependencies(string $module) : array
+    private static function resolveModuleDependencies(string $module, array $modules_by_component) : array
     {
         $cyclic_check[] = $module;
 
@@ -167,6 +91,8 @@ final class ModuleDependencyMap implements ArrayAccess
                 throw new InvalidModuleFqcnException($module);
             }
             $ret[] = $m;
+
+            $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component));
         }
 
         $required_components = forward_static_call([$module, 'requiredComponents']);
@@ -174,9 +100,11 @@ final class ModuleDependencyMap implements ArrayAccess
             if (!Components::isComponent($c)){
                 throw new InvalidComponentNameException($c);
             }
-            $modules = $this->modules_by_component[$c] ?? [];
+            $modules = $modules_by_component[$c] ?? [];
             foreach($modules as $m){
                 $ret[] = $m;
+
+                $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component));
             }
         }
 

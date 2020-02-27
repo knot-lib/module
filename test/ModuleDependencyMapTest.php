@@ -18,7 +18,7 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         $map = new ModuleDependencyMap();
 
-        $map->addModuleDependency(ModuleA::class);
+        $map->addModuleDependencies(ModuleA::class);
 
         $this->assertEquals([ModuleA::class => []], $map->toArray());
 
@@ -27,7 +27,7 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         $map = new ModuleDependencyMap();
 
-        $map->addModuleDependency(ModuleB::class);
+        $map->addModuleDependencies(ModuleB::class);
 
         $this->assertEquals([ModuleB::class => [ModuleA::class]], $map->toArray());
 
@@ -36,7 +36,7 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         $map = new ModuleDependencyMap();
 
-        $map->addModuleDependency(ModuleC::class);
+        $map->addModuleDependencies(ModuleC::class);
 
         $this->assertEquals([ModuleC::class => [ModuleA::class, ModuleB::class]], $map->toArray());
 
@@ -70,15 +70,15 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         $map = new ModuleDependencyMap();
 
-        $map->addModuleDependency(ModuleI::class);
-        $map->addModuleDependency(ModuleJ::class);
+        $map->addModuleDependencies(ModuleI::class);
+        $map->addModuleDependencies(ModuleJ::class);
 
         $expected = [
             ModuleI::class => [
-                ModuleB::class, ModuleK::class,
+                ModuleB::class, ModuleA::class, ModuleK::class,
             ],
             ModuleJ::class => [
-                ModuleB::class, ModuleI::class,
+                ModuleB::class, ModuleA::class, ModuleI::class, ModuleK::class,
             ],
         ];
 

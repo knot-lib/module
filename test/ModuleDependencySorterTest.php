@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection DuplicatedCode */
 declare(strict_types=1);
 
 namespace KnotLib\Module\Test;
@@ -26,8 +26,8 @@ final class ModuleDependencySorterTest extends TestCase
         $module_list = [ ModuleA::class, ModuleB::class ];
         $module_component_map = [ ModuleA::class => Components::MODULE, ModuleB::class => Components::MODULE ];
         $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ModuleB::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ModuleB::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -35,8 +35,8 @@ final class ModuleDependencySorterTest extends TestCase
 
         $module_list = [ ModuleB::class, ModuleA::class ];
         $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ModuleB::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ModuleB::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -54,9 +54,9 @@ final class ModuleDependencySorterTest extends TestCase
         $module_list = [ ModuleA::class, ModuleB::class, ModuleC::class ];
         $module_component_map = [ ModuleA::class => Components::MODULE, ModuleB::class => Components::MODULE, ModuleC::class => Components::MODULE ];
         $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ModuleB::class);
-        $dependency_map->addModuleDependency(ModuleC::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ModuleB::class);
+        $dependency_map->addModuleDependencies(ModuleC::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -64,9 +64,9 @@ final class ModuleDependencySorterTest extends TestCase
 
         $module_list = [ ModuleC::class, ModuleB::class, ModuleA::class ];
         $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ModuleB::class);
-        $dependency_map->addModuleDependency(ModuleC::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ModuleB::class);
+        $dependency_map->addModuleDependencies(ModuleC::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -95,10 +95,10 @@ final class ModuleDependencySorterTest extends TestCase
             EventStreamModule::class => Components::EVENTSTREAM,
         ];
         $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ExHandlerModule::class);
-        $dependency_map->addModuleDependency(LoggerModule::class);
-        $dependency_map->addModuleDependency(EventStreamModule::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ExHandlerModule::class);
+        $dependency_map->addModuleDependencies(LoggerModule::class);
+        $dependency_map->addModuleDependencies(EventStreamModule::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -106,10 +106,10 @@ final class ModuleDependencySorterTest extends TestCase
 
         $module_list = [ EventStreamModule::class, LoggerModule::class, ModuleA::class, ExHandlerModule::class,  ];
         $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ExHandlerModule::class);
-        $dependency_map->addModuleDependency(LoggerModule::class);
-        $dependency_map->addModuleDependency(EventStreamModule::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ExHandlerModule::class);
+        $dependency_map->addModuleDependencies(LoggerModule::class);
+        $dependency_map->addModuleDependencies(EventStreamModule::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -151,13 +151,13 @@ final class ModuleDependencySorterTest extends TestCase
             Components::MODULE => [ ModuleA::class, ModuleB::class ],
         ];
         $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ModuleB::class);
-        $dependency_map->addModuleDependency(ExHandlerModule::class);
-        $dependency_map->addModuleDependency(LoggerModule::class);
-        $dependency_map->addModuleDependency(EventStreamModule::class);
-        $dependency_map->addModuleDependency(ResponseModule::class);
-        $dependency_map->addModuleDependency(PipelineModule::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ModuleB::class);
+        $dependency_map->addModuleDependencies(ExHandlerModule::class);
+        $dependency_map->addModuleDependencies(LoggerModule::class);
+        $dependency_map->addModuleDependencies(EventStreamModule::class);
+        $dependency_map->addModuleDependencies(ResponseModule::class);
+        $dependency_map->addModuleDependencies(PipelineModule::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 
@@ -183,13 +183,13 @@ final class ModuleDependencySorterTest extends TestCase
             PipelineModule::class,
         ];
         $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependency(ModuleA::class);
-        $dependency_map->addModuleDependency(ModuleB::class);
-        $dependency_map->addModuleDependency(ExHandlerModule::class);
-        $dependency_map->addModuleDependency(LoggerModule::class);
-        $dependency_map->addModuleDependency(EventStreamModule::class);
-        $dependency_map->addModuleDependency(ResponseModule::class);
-        $dependency_map->addModuleDependency(PipelineModule::class);
+        $dependency_map->addModuleDependencies(ModuleA::class);
+        $dependency_map->addModuleDependencies(ModuleB::class);
+        $dependency_map->addModuleDependencies(ExHandlerModule::class);
+        $dependency_map->addModuleDependencies(LoggerModule::class);
+        $dependency_map->addModuleDependencies(EventStreamModule::class);
+        $dependency_map->addModuleDependencies(ResponseModule::class);
+        $dependency_map->addModuleDependencies(PipelineModule::class);
         $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
         $sorted_module_list = $sorter->sort();
 

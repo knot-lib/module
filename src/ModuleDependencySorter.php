@@ -62,12 +62,12 @@ final class ModuleDependencySorter
         ];
 
         usort($ret, function($a, $b) use($module_component_map, $dependency_map, $component_priorities){
-            $a_dependent_modules = $dependency_map->resolveModuleDependency($a);
+            $a_dependent_modules = $dependency_map->getDependentModules($a);
             if (in_array($b, $a_dependent_modules)){
                 return 1;
             }
 
-            $b_dependent_modules = $dependency_map->resolveModuleDependency($b);
+            $b_dependent_modules = $dependency_map->getDependentModules($b);
             if (in_array($a, $b_dependent_modules)){
                 return -1;
             }

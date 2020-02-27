@@ -64,7 +64,7 @@ class ModuleDependencyResolver
         try{
             foreach($module_list as $module)
             {
-                $dependency_map->addModuleDependency($module);
+                $dependency_map->addModuleDependencies($module);
             }
         }
         catch(InvalidModuleFqcnException $e){
