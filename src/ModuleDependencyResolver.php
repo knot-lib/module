@@ -26,11 +26,13 @@ class ModuleDependencyResolver
     /**
      * Return resolved modules
      *
+     * @param callable $explain_callback
+     *
      * @return array
      *
      * @throws ModuleDependencyResolvingException
      */
-    public function resolve() : array
+    public function resolve(callable $explain_callback = null) : array
     {
         $module_list = $this->required_modules;
 
@@ -65,9 +67,6 @@ class ModuleDependencyResolver
                 $dependency_map->addModuleDependency($module);
             }
         }
-        catch(CyclicDependencyException $e){
-            throw new ModuleDependencyResolvingException('Detected a cyclic module dependency.', 0, $e);
-        }
         catch(InvalidModuleFqcnException $e){
             throw new ModuleDependencyResolvingException('Invalid module FQCN specified.', 0, $e);
         }
@@ -76,10 +75,22 @@ class ModuleDependencyResolver
         }
 
         // sort modules
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-        $sorted_module_list = $sorter->sort();
+        try{
+            $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
+            $sorted_module_list = $sorter->sort();
 
-        return $sorted_module_list;
+            if ($explain_callback){
+                ($explain_callback)($dependency_map->toArray(), $modules_by_component);
+            }
+
+            return $sorted_module_list;
+        }
+        catch(CyclicDependencyException $e){
+            throw new ModuleDependencyResolvingException('Detected a cyclic module dependency.', 0, $e);
+        }
+        catch(InvalidModuleFqcnException $e){
+            throw new ModuleDependencyResolvingException('Invalid module FQCN specified.', 0, $e);
+        }
     }
 
 }

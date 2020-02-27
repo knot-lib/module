@@ -1,9 +1,11 @@
-<?php
+<?php /** @noinspection PhpDocRedundantThrowsInspection */
 declare(strict_types=1);
 
 namespace KnotLib\Module;
 
 use KnotLib\Kernel\Module\Components;
+use KnotLib\Module\Exception\CyclicDependencyException;
+use KnotLib\Module\Exception\InvalidModuleFqcnException;
 
 final class ModuleDependencySorter
 {
@@ -34,6 +36,9 @@ final class ModuleDependencySorter
      * Sort by module's dependency
      *
      * @return array
+     *
+     * @throws CyclicDependencyException
+     * @throws InvalidModuleFqcnException
      */
     public function sort() : array
     {

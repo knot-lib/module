@@ -503,4 +503,41 @@ class ModuleDependencyResolverTest extends TestCase
             $this->fail($e->getMessage());
         }
     }
+
+    public function testExplain()
+    {
+        $resolver = new ModuleDependencyResolver([
+            ModuleA::class, ModuleB::class, DiModule::class, EventStreamModule::class,
+            LoggerModule::class, ExHandlerModule::class, CacheModule::class
+        ]);
+
+        try{
+            $resolver->resolve(function($dependency_map, $modules_by_component){
+                $this->assertEquals([
+                    ModuleA::class => [
+                        ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
+                    ],
+                    ModuleB::class => [
+                        ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
+                    ],
+                    DiModule::class => [
+                        EventStreamModule::class, LoggerModule::class, CacheModule::class,
+                    ],
+                    EventStreamModule::class => [
+                        ExHandlerModule::class,
+                    ],
+                    LoggerModule::class => [
+                        EventStreamModule::class, ExHandlerModule::class,
+                    ],
+                    ExHandlerModule::class => [],
+                    CacheModule::class => [
+                        LoggerModule::class,
+                    ],
+                ], $dependency_map);
+            });
+        }
+        catch(ModuleDependencyResolvingException $e){
+            $this->fail($e->getMessage());
+        }
+    }
 }
