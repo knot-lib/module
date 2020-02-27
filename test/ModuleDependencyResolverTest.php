@@ -3,6 +3,7 @@
 
 namespace KnotLib\Module\Test;
 
+use KnotLib\Kernel\Module\Components;
 use KnotLib\Module\ModuleDependencyResolver;
 use KnotLib\Module\Test\Component\CacheModule;
 use KnotLib\Module\Test\Component\DiModule;
@@ -534,6 +535,15 @@ class ModuleDependencyResolverTest extends TestCase
                         LoggerModule::class,
                     ],
                 ], $dependency_map);
+
+                $this->assertEquals([
+                    Components::MODULE => [ ModuleA::class, ModuleB::class ],
+                    Components::DI => [ DiModule::class ],
+                    Components::EVENTSTREAM => [ EventStreamModule::class ],
+                    Components::LOGGER => [ LoggerModule::class ],
+                    Components::EX_HANDLER => [ ExHandlerModule::class ],
+                    Components::CACHE => [ CacheModule::class ],
+                ], $modules_by_component);
             });
         }
         catch(ModuleDependencyResolvingException $e){
