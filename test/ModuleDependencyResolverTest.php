@@ -475,12 +475,13 @@ class ModuleDependencyResolverTest extends TestCase
     public function testExplain()
     {
         $resolver = new ModuleDependencyResolver([
-            ModuleA::class, ModuleB::class, DiModule::class, EventStreamModule::class,
+            ModuleA::class, ModuleB::class, ModuleD::class, DiModule::class, EventStreamModule::class,
             LoggerModule::class, ExHandlerModule::class, CacheModule::class
         ]);
 
-        $resolver->resolve(function($dependency_map, $modules_by_component){
-            var_dump($dependency_map);
+        $result = $resolver->resolve(function($dependency_map, $modules_by_component, $sort_logs){
+
+            // check dependency map
             $this->assertEquals([
                 ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
             ], $dependency_map[ModuleA::class]);
@@ -507,14 +508,63 @@ class ModuleDependencyResolverTest extends TestCase
                 LoggerModule::class, EventStreamModule::class, ExHandlerModule::class,
             ], $dependency_map[CacheModule::class]);
 
+            $this->assertSame([
+                CacheModule::class,
+                LoggerModule::class,
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                DiModule::class,
+            ], $dependency_map[ModuleD::class]);
+
+            // check module list by component
             $this->assertEquals([
-                Components::MODULE => [ ModuleA::class, ModuleB::class ],
+                Components::MODULE => [ ModuleA::class, ModuleB::class, ModuleD::class ],
                 Components::DI => [ DiModule::class ],
                 Components::EVENTSTREAM => [ EventStreamModule::class ],
                 Components::LOGGER => [ LoggerModule::class ],
                 Components::EX_HANDLER => [ ExHandlerModule::class ],
                 Components::CACHE => [ CacheModule::class ],
             ], $modules_by_component);
+
+            // check sort logs
+            var_export($sort_logs);
+            $this->assertEquals([
+                0 => 'KnotLib\\Module\\Test\\ModuleA < KnotLib\\Module\\Test\\ModuleB(module dependency)',
+                1 => 'KnotLib\\Module\\Test\\ModuleB = KnotLib\\Module\\Test\\ModuleD',
+                2 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\DiModule(component priority)',
+                3 => 'KnotLib\\Module\\Test\\ModuleB > KnotLib\\Module\\Test\\Component\\DiModule(component priority)',
+                4 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\DiModule(component priority)',
+                5 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
+                6 => 'KnotLib\\Module\\Test\\ModuleB > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
+                7 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
+                8 => 'KnotLib\\Module\\Test\\Component\\DiModule > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
+                9 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
+                10 => 'KnotLib\\Module\\Test\\ModuleB > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
+                11 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
+                12 => 'KnotLib\\Module\\Test\\Component\\DiModule > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
+                13 => 'KnotLib\\Module\\Test\\Component\\EventStreamModule < KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
+                14 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\ExHandlerModule(component priority)',
+                15 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\ExHandlerModule(component priority)',
+                16 => 'KnotLib\\Module\\Test\\Component\\LoggerModule > KnotLib\\Module\\Test\\Component\\ExHandlerModule(component priority)',
+                17 => 'KnotLib\\Module\\Test\\Component\\ExHandlerModule > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
+                18 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
+                19 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
+                20 => 'KnotLib\\Module\\Test\\Component\\LoggerModule < KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
+                21 => 'KnotLib\\Module\\Test\\Component\\DiModule > KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
+            ], $sort_logs);
         });
+
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                CacheModule::class,
+                DiModule::class,
+                ModuleA::class,
+                ModuleB::class,
+                ModuleD::class,
+            ],
+            $result);
     }
 }

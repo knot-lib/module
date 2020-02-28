@@ -56,10 +56,13 @@ class ModuleDependencyResolver
 
         // sort modules
         $sorter = new ModuleDependencySorter($dependency_map_result, $this->required_modules);
-        $sorted_module_list = $sorter->sort();
+        $sort_logs = [];
+        $sorted_module_list = $sorter->sort(function($log) use(&$sort_logs){
+            $sort_logs[] = $log;
+        });
 
         if ($explain_callback){
-            ($explain_callback)($dependency_map_result, $modules_by_component);
+            ($explain_callback)($dependency_map_result, $modules_by_component, $sort_logs);
         }
 
         return $sorted_module_list;

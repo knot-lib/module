@@ -28,28 +28,51 @@ final class ModuleDependencySorter
     /**
      * Sort by module's dependency
      *
+     * @param callable $sort_callback
+     *
      * @return array
      */
-    public function sort() : array
+    public function sort(callable $sort_callback = null) : array
     {
         $dependency_map = $this->module_dependency_map;
         $ret = $this->module_list;
 
-        usort($ret, function($a, $b) use($dependency_map){
+        usort($ret, function($a, $b) use($dependency_map, $sort_callback){
+
+            $component_a = $this->getComponentType($a);
+            $component_b = $this->getComponentType($b);
+
+            $res = $this->compareComponentPriority($component_a, $component_b);
+
+            if ($res !== 0){
+                if ($sort_callback){
+                    $log = $res > 0 ? "{$a} > {$b}" : "{$a} < {$b}";
+                    ($sort_callback)("{$log}(component priority)");
+                }
+                return $res;
+            }
+
             $a_dependent_modules = $dependency_map[$a];
             if (in_array($b, $a_dependent_modules)){
+                if ($sort_callback){
+                    ($sort_callback)("{$a} > {$b}(module dependency)");
+                }
                 return 1;
             }
 
             $b_dependent_modules = $dependency_map[$b];
             if (in_array($a, $b_dependent_modules)){
+                if ($sort_callback){
+                    ($sort_callback)("{$a} < {$b}(module dependency)");
+                }
                 return -1;
             }
 
-            $component_a = $this->getComponentType($a);
-            $component_b = $this->getComponentType($b);
+            if ($sort_callback){
+                ($sort_callback)("{$a} = {$b}");
+            }
 
-            return $this->compareComponentPriority($component_a, $component_b);
+            return $res;
         });
 
         return $ret;
