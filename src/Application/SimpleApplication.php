@@ -1,10 +1,10 @@
 <?php
 namespace KnotLib\Module\Application;
 
+use KnotLib\Kernel\Exception\ModuleInstallationException;
 use KnotLib\Kernel\Kernel\AbstractApplication;
 use KnotLib\Kernel\FileSystem\Dir;
 
-use KnotLib\Module\Exception\ModuleDependencyResolvingException;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Module\ModuleDependencyResolver;
@@ -29,7 +29,7 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
                 /** @noinspection PhpIncludeInspection */
                 $resolved_modules = require($dependency_cache);
                 if (!is_array($resolved_modules)){
-                    throw new ModuleDependencyResolvingException('Dependency cache is broken: ' . $dependency_cache);
+                    throw new ModuleInstallationException('Dependency cache is broken: ' . $dependency_cache);
                 }
                 $this->setResolvedModules($resolved_modules);
             }
@@ -44,7 +44,7 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
 
                 $res = file_put_contents($dependency_cache, $source_code);
                 if (!$res){
-                    throw new ModuleDependencyResolvingException('Failed to create dependency cache: ' . $dependency_cache);
+                    throw new ModuleInstallationException('Failed to create dependency cache: ' . $dependency_cache);
                 }
             }
         }

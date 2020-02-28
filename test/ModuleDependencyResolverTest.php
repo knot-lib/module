@@ -4,6 +4,8 @@
 namespace KnotLib\Module\Test;
 
 use KnotLib\Kernel\Module\Components;
+use KnotLib\Module\Exception\ModuleClassNotFoundException;
+use KnotLib\Module\Exception\NotModuleClassException;
 use KnotLib\Module\ModuleDependencyResolver;
 use KnotLib\Module\Test\Component\CacheModule;
 use KnotLib\Module\Test\Component\DiModule;
@@ -14,7 +16,6 @@ use KnotLib\Module\Test\Component\PipelineModule;
 use KnotLib\Module\Test\Component\ResponseModule;
 use KnotLib\Module\Test\Component\RouterModule;
 use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\Exception\ModuleDependencyResolvingException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -88,6 +89,7 @@ class ModuleDependencyResolverTest extends TestCase
      *
      * Modules: ModuleA, ExHandlerModule, LoggerModule, EventStreamModule
      *
+     * @throws
      */
     public function testResolveCase1()
     {
@@ -95,19 +97,18 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertEquals([ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class], $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertEquals([
+            ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class
+        ], $result);
     }
 
     /**
      * [Test Case 2]
      *
      * Modules: ModuleA, ModuleB
+     *
+     * @throws
      */
     public function testResolveCase2()
     {
@@ -115,19 +116,18 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleA::class, ModuleB::class, ExHandlerModule::class, EventStreamModule::class, LoggerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame([ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class, ModuleB::class], $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertSame([
+            ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class, ModuleB::class
+        ], $result);
     }
 
     /**
      * [Test Case 3]
      *
      * Modules: ModuleA, ModuleB, ModuleC
+     *
+     * @throws
      */
     public function testResolveCase3()
     {
@@ -135,21 +135,17 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleA::class, ModuleB::class, ModuleC::class, ExHandlerModule::class, EventStreamModule::class, LoggerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $expected = [
+        $result = $resolver->resolve();
+        $this->assertEquals(
+            [
                 ExHandlerModule::class,
                 EventStreamModule::class,
                 LoggerModule::class,
                 ModuleA::class,
                 ModuleB::class,
                 ModuleC::class,
-            ];
-            $this->assertSame($expected, $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+            ],
+            $result);
     }
 
     /**
@@ -157,6 +153,8 @@ class ModuleDependencyResolverTest extends TestCase
      * CACHE component required, but the component is not loaded
      *
      * Modules: ModuleD(requires CACHE), LoggerModule, EventStreamModule, ExHandlerModule
+     *
+     * @throws
      */
     public function testResolveCase4()
     {
@@ -164,19 +162,16 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleD::class, LoggerModule::class, EventStreamModule::class, ExHandlerModule::class,
         ]);
 
-        try{
-            $resolver->resolve();
-            $this->assertTrue(true);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $resolver->resolve();
+        $this->assertTrue(true);
     }
 
     /**
      * [Test Case 5]
      *
      * Modules: ModuleD, CacheModule, DiModule, LoggerModule, EventStreamModule, ExHandlerModule
+     *
+     * @throws
      */
     public function testResolveCase5()
     {
@@ -185,22 +180,17 @@ class ModuleDependencyResolverTest extends TestCase
             ExHandlerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    CacheModule::class,
-                    DiModule::class,
-                    ModuleD::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                CacheModule::class,
+                DiModule::class,
+                ModuleD::class,
+            ],
+            $result);
     }
 
     /**
@@ -208,6 +198,8 @@ class ModuleDependencyResolverTest extends TestCase
      * DI component is required, but the component is not loaded.
      *
      * Modules: ModuleE(requires DI), CacheModule, LoggerModule, EventStreamModule, ExHandlerModule
+     *
+     * @throws
      */
     public function testResolveCase6()
     {
@@ -215,19 +207,16 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleE::class, CacheModule::class, LoggerModule::class, EventStreamModule::class, ExHandlerModule::class,
         ]);
 
-        try{
-            $resolver->resolve();
-            $this->assertTrue(true);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $resolver->resolve();
+        $this->assertTrue(true);
     }
 
     /**
      * [Test Case 7]
      *
      * Modules: CacheModule, LoggerModule, DiModule, EventStreamModule, ExHandlerModule
+     *
+     * @throws
      */
     public function testResolveCase7()
     {
@@ -235,21 +224,16 @@ class ModuleDependencyResolverTest extends TestCase
             CacheModule::class, LoggerModule::class, DiModule::class, EventStreamModule::class, ExHandlerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    CacheModule::class,
-                    DiModule::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                CacheModule::class,
+                DiModule::class,
+            ],
+            $result);
     }
 
     /**
@@ -257,6 +241,7 @@ class ModuleDependencyResolverTest extends TestCase
      * Cyclic referenced modules
      *
      * Modules: ModuleF, ModuleG
+     *
      */
     public function testResolveCase8()
     {
@@ -277,13 +262,11 @@ class ModuleDependencyResolverTest extends TestCase
         catch(CyclicDependencyException $e){
             $this->assertTrue(true);
         }
-        catch(ModuleDependencyResolvingException $e){
-            if ($e->getPrevious() instanceof CyclicDependencyException){
-                $this->assertTrue(true);
-            }
-            else{
-                $this->fail($e->getMessage());
-            }
+        catch(ModuleClassNotFoundException $e){
+            $this->fail($e->getMessage());
+        }
+        catch(NotModuleClassException $e){
+            $this->fail($e->getMessage());
         }
     }
 
@@ -291,6 +274,8 @@ class ModuleDependencyResolverTest extends TestCase
      * [Test Case 9]
      *
      * Modules: ModuleA, ModuleB, ExHandlerModule, LoggerModule, EventStreamModule
+     *
+     * @throws
      */
     public function testResolveCase9()
     {
@@ -298,27 +283,24 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleA::class, ModuleB::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    ModuleA::class,
-                    ModuleB::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $result);
     }
 
     /**
      * [Test Case 10]
      *
      * Modules: ModuleA, ModuleB, LoggerModule, EventStreamModule
+     *
+     * @throws
      */
     public function testResolveCase10()
     {
@@ -326,27 +308,24 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleA::class, ModuleB::class, LoggerModule::class, EventStreamModule::class, ExHandlerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    ModuleA::class,
-                    ModuleB::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $result);
     }
 
     /**
      * [Test Case 11]
      *
      * Modules: ModuleA, ModuleB, PipelineModule, EventStreamModule, ResponseModule
+     *
+     * @throws
      */
     public function testResolveCase11()
     {
@@ -355,23 +334,18 @@ class ModuleDependencyResolverTest extends TestCase
             ExHandlerModule::class, LoggerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    ResponseModule::class,
-                    PipelineModule::class,
-                    ModuleA::class,
-                    ModuleB::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ResponseModule::class,
+                PipelineModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $result);
     }
 
     /**
@@ -380,6 +354,8 @@ class ModuleDependencyResolverTest extends TestCase
      *
      * Modules: CacheModule, LoggerModule, DiModule, PipelineModule, ModuleD, ExHandlerModule, EventStreamModule,
      *         ResponseModule
+     *
+     * @throws
      */
     public function testResolveCase12()
     {
@@ -388,24 +364,19 @@ class ModuleDependencyResolverTest extends TestCase
             ExHandlerModule::class, EventStreamModule::class, ResponseModule::class,
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    ResponseModule::class,
-                    PipelineModule::class,
-                    CacheModule::class,
-                    DiModule::class,
-                    ModuleD::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertEquals(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ResponseModule::class,
+                PipelineModule::class,
+                CacheModule::class,
+                DiModule::class,
+                ModuleD::class,
+            ],
+            $result);
     }
 
     /**
@@ -413,6 +384,8 @@ class ModuleDependencyResolverTest extends TestCase
      * Resolve inherited modules
      *
      * Modules: ModuleH, ModuleA, ModuleB, ExHandlerModule, LoggerModule, EventStreamModule
+     *
+     * @throws
      */
     public function testResolveCase13()
     {
@@ -420,22 +393,17 @@ class ModuleDependencyResolverTest extends TestCase
             ModuleH::class, ModuleA::class, ModuleB::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    ModuleA::class,
-                    ModuleB::class,
-                    ModuleH::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertEquals(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+                ModuleB::class,
+                ModuleH::class,
+            ],
+            $result);
     }
 
     /**
@@ -444,6 +412,8 @@ class ModuleDependencyResolverTest extends TestCase
      *
      * Modules: ModuleA, RouterModule, ModuleB, ResponseModule, EventStreamModule, PipelineModule,
      *        LoggerModule, ExHandlerModule
+     *
+     * @throws
      */
     public function testResolveCase14()
     {
@@ -452,24 +422,19 @@ class ModuleDependencyResolverTest extends TestCase
             PipelineModule::class, LoggerModule::class, ExHandlerModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    ResponseModule::class,
-                    PipelineModule::class,
-                    RouterModule::class,
-                    ModuleA::class,
-                    ModuleB::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertEquals(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ResponseModule::class,
+                PipelineModule::class,
+                RouterModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $result);
     }
 
     /**
@@ -478,6 +443,8 @@ class ModuleDependencyResolverTest extends TestCase
      *
      * Modules: ModuleA, ModuleB, DiModule, EventStreamModule, LoggerModule, ExHandlerModule,
      *        CacheModule
+     *
+     * @throws
      */
     public function testResolveCase15()
     {
@@ -486,25 +453,25 @@ class ModuleDependencyResolverTest extends TestCase
             LoggerModule::class, ExHandlerModule::class, CacheModule::class
         ]);
 
-        try{
-            $result = $resolver->resolve();
-            $this->assertSame(
-                [
-                    ExHandlerModule::class,
-                    EventStreamModule::class,
-                    LoggerModule::class,
-                    CacheModule::class,
-                    DiModule::class,
-                    ModuleA::class,
-                    ModuleB::class,
-                ],
-                $result);
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+        $result = $resolver->resolve();
+        $this->assertEquals(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                CacheModule::class,
+                DiModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $result);
     }
 
+    /**
+     * @throws CyclicDependencyException
+     * @throws ModuleClassNotFoundException
+     * @throws NotModuleClassException
+     */
     public function testExplain()
     {
         $resolver = new ModuleDependencyResolver([
@@ -512,46 +479,42 @@ class ModuleDependencyResolverTest extends TestCase
             LoggerModule::class, ExHandlerModule::class, CacheModule::class
         ]);
 
-        try{
-            $resolver->resolve(function($dependency_map, $modules_by_component){
-                $this->assertEquals([
-                    ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
-                ], $dependency_map[ModuleA::class]);
+        $resolver->resolve(function($dependency_map, $modules_by_component){
+            var_dump($dependency_map);
+            $this->assertEquals([
+                ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
+            ], $dependency_map[ModuleA::class]);
 
-                $this->assertEquals([
-                    ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
-                ], $dependency_map[ModuleB::class]);
+            $this->assertEquals([
+                ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class,
+            ], $dependency_map[ModuleB::class]);
 
-                $this->assertEquals([
-                    EventStreamModule::class, ExHandlerModule::class,LoggerModule::class, CacheModule::class,
-                ], $dependency_map[DiModule::class]);
+            $this->assertEquals([
+                EventStreamModule::class, ExHandlerModule::class,LoggerModule::class, CacheModule::class,
+            ], $dependency_map[DiModule::class]);
 
-                $this->assertEquals([
-                    ExHandlerModule::class,
-                ], $dependency_map[EventStreamModule::class]);
+            $this->assertEquals([
+                ExHandlerModule::class,
+            ], $dependency_map[EventStreamModule::class]);
 
-                $this->assertEquals([
-                    EventStreamModule::class, ExHandlerModule::class,
-                ], $dependency_map[LoggerModule::class]);
+            $this->assertEquals([
+                EventStreamModule::class, ExHandlerModule::class,
+            ], $dependency_map[LoggerModule::class]);
 
-                $this->assertEquals([], $dependency_map[ExHandlerModule::class]);
+            $this->assertEquals([], $dependency_map[ExHandlerModule::class]);
 
-                $this->assertEquals([
-                    LoggerModule::class, EventStreamModule::class, ExHandlerModule::class,
-                ], $dependency_map[CacheModule::class]);
+            $this->assertEquals([
+                LoggerModule::class, EventStreamModule::class, ExHandlerModule::class,
+            ], $dependency_map[CacheModule::class]);
 
-                $this->assertEquals([
-                    Components::MODULE => [ ModuleA::class, ModuleB::class ],
-                    Components::DI => [ DiModule::class ],
-                    Components::EVENTSTREAM => [ EventStreamModule::class ],
-                    Components::LOGGER => [ LoggerModule::class ],
-                    Components::EX_HANDLER => [ ExHandlerModule::class ],
-                    Components::CACHE => [ CacheModule::class ],
-                ], $modules_by_component);
-            });
-        }
-        catch(ModuleDependencyResolvingException $e){
-            $this->fail($e->getMessage());
-        }
+            $this->assertEquals([
+                Components::MODULE => [ ModuleA::class, ModuleB::class ],
+                Components::DI => [ DiModule::class ],
+                Components::EVENTSTREAM => [ EventStreamModule::class ],
+                Components::LOGGER => [ LoggerModule::class ],
+                Components::EX_HANDLER => [ ExHandlerModule::class ],
+                Components::CACHE => [ CacheModule::class ],
+            ], $modules_by_component);
+        });
     }
 }

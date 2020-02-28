@@ -21,11 +21,11 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         // ModuleA
         //===================================
-        $map = new ModuleDependencyMap();
+        $map = new ModuleDependencyMap([ModuleA::class]);
 
-        $map->addModuleDependencies(ModuleA::class);
+        $result = $map->resolve();
 
-        $this->assertEquals([ModuleA::class => []], $map->toArray());
+        $this->assertEquals([ModuleA::class => []], $result);
      }
 
     /**
@@ -36,11 +36,11 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         // ModuleB: depends on ModulA
         //===================================
-        $map = new ModuleDependencyMap();
+        $map = new ModuleDependencyMap([ModuleB::class]);
 
-        $map->addModuleDependencies(ModuleB::class);
+        $result = $map->resolve();
 
-        $this->assertEquals([ModuleB::class => [ModuleA::class]], $map->toArray());
+        $this->assertEquals([ModuleB::class => [ModuleA::class]], $result);
     }
 
     /**
@@ -51,11 +51,11 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         // ModuleC: depends on ModulA and ModuleB
         //===================================
-        $map = new ModuleDependencyMap();
+        $map = new ModuleDependencyMap([ModuleC::class]);
 
-        $map->addModuleDependencies(ModuleC::class);
+        $result = $map->resolve();
 
-        $this->assertEquals([ModuleC::class => [ModuleA::class, ModuleB::class]], $map->toArray());
+        $this->assertEquals([ModuleC::class => [ModuleA::class, ModuleB::class]], $result);
     }
 
     /**
@@ -66,15 +66,14 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         // ModuleF: has cyclic dependency(ModuleF depends on ModuleG, ModuleG depends on ModuleF)
         //===================================
-        $map = new ModuleDependencyMap();
+        $map = new ModuleDependencyMap([ModuleF::class]);
 
         try {
-            $map->addModuleDependencies(ModuleF::class);
-
-            var_dump($map->toArray());
+            $map->resolve();
 
             $this->fail('ModuleF has cyclic dependency.');
-        } catch (CyclicDependencyException $e) {
+        }
+        catch (CyclicDependencyException $e) {
             $this->assertTrue(true);
             echo $e->getMessage();
         }
@@ -88,14 +87,14 @@ final class ModuleDependencyMapTest extends TestCase
         //===================================
         // ModuleH: extends ModuleC
         //===================================
-        $map = new ModuleDependencyMap();
+        $map = new ModuleDependencyMap([ModuleH::class]);
 
-        $map->addModuleDependencies(ModuleH::class);
+        $result = $map->resolve();
 
         $this->assertSame([
             ModuleH::class => [ ModuleA::class, ModuleB::class ]
         ],
-        $map->toArray());
+        $result);
     }
 
     /**
@@ -117,15 +116,20 @@ final class ModuleDependencyMapTest extends TestCase
         //         -> ModuleI
         //         -> ModuleK
         //===================================
-        $map = new ModuleDependencyMap();
+        $map = new ModuleDependencyMap([ModuleI::class, ModuleJ::class]);
 
-        $map->addModuleDependencies(ModuleI::class);
-        $map->addModuleDependencies(ModuleJ::class);
+        $module_list_by_component = [
+            Components::EX_HANDLER => [ ExHandlerModule::class ],
+            Components::LOGGER => [ LoggerModule::class ],
+            Components::EVENTSTREAM => [ EventStreamModule::class ],
+        ];
 
-        $map = $map->toArray();
+        $map->resolve($module_list_by_component);
 
-        $this->assertEquals([ModuleB::class, ModuleA::class, ModuleK::class], $map[ModuleI::class]);
-        $this->assertEquals([ModuleB::class, ModuleA::class, ModuleI::class, ModuleK::class], $map[ModuleJ::class]);
+        $result = $map->resolve();
+
+        $this->assertEquals([ModuleB::class, ModuleA::class, ModuleK::class], $result[ModuleI::class]);
+        $this->assertEquals([ModuleB::class, ModuleA::class, ModuleI::class, ModuleK::class], $result[ModuleJ::class]);
     }
 
     /**
@@ -137,24 +141,18 @@ final class ModuleDependencyMapTest extends TestCase
         // ModuleK: depends on ModuleB, ExHandler, Logger, EventStream
         //===================================
 
-        $modules_by_component[Components::EX_HANDLER] = [
-            ExHandlerModule::class
-        ];
-        $modules_by_component[Components::LOGGER] = [
-            LoggerModule::class
-        ];
-        $modules_by_component[Components::EVENTSTREAM] = [
-            EventStreamModule::class
+        $map = new ModuleDependencyMap([ModuleK::class]);
+
+        $module_list_by_component = [
+            Components::EX_HANDLER => [ ExHandlerModule::class ],
+            Components::LOGGER => [ LoggerModule::class ],
+            Components::EVENTSTREAM => [ EventStreamModule::class ],
         ];
 
-        $map = new ModuleDependencyMap($modules_by_component);
-
-        $map->addModuleDependencies(ModuleK::class);
-
-        $map = $map->toArray();
+        $result = $map->resolve($module_list_by_component);
 
         $this->assertEquals([
             ModuleB::class, ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class
-        ], $map[ModuleK::class]);
+        ], $result[ModuleK::class]);
     }
 }

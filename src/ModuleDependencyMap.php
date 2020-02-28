@@ -3,11 +3,9 @@ declare(strict_types=1);
 
 namespace KnotLib\Module;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\Exception\InvalidComponentNameException;
-use KnotLib\Module\Exception\InvalidModuleFqcnException;
-use KnotLib\Module\Exception\MethodNotFoundException;
+use KnotLib\Module\Exception\NotModuleClassException;
 use KnotLib\Module\Exception\ModuleClassNotFoundException;
 
 final class ModuleDependencyMap
@@ -16,100 +14,91 @@ final class ModuleDependencyMap
     private $map;
 
     /** @var array */
-    private $modules_by_component;
+    private $module_list;
 
     /**
      * ModuleDependencyMap constructor.
      *
-     * @param array $modules_by_component
+     * @param array $module_list
      */
-    public function __construct(array $modules_by_component = [])
+    public function __construct(array $module_list)
     {
-        $this->modules_by_component = $modules_by_component;
         $this->map = [];
+        $this->module_list = $module_list;
     }
 
     /**
-     * Resolve module dependencies and add to the map
+     * Resolve dependency
      *
-     * @param string $module
+     * @param array $module_list_by_component
+     *
+     * @return array
      *
      * @throws CyclicDependencyException
-     * @throws InvalidModuleFqcnException
-     * @throws InvalidComponentNameException
-     * @throws MethodNotFoundException
      * @throws ModuleClassNotFoundException
+     * @throws NotModuleClassException
      */
-    public function addModuleDependencies(string $module)
+    public function resolve(array $module_list_by_component = []) : array
     {
         $cyclic_check = [];
-        $this->map[$module] = self::resolveModuleDependencies($module, $this->modules_by_component, $cyclic_check);
-    }
+        foreach($this->module_list as $module){
+            $this->map[$module] = self::resolveModuleDependencies($module, $module_list_by_component, $cyclic_check);
+        }
 
-    /**
-     * Get dependent modules of a module
-     *
-     * @param string $module
-     *
-     * @return array
-     */
-    public function getDependentModules(string $module)
-    {
-        return $this->map[$module];
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray() : array
-    {
         return $this->map;
     }
 
     /**
      * @param string $module
-     * @param array $modules_by_component
+     *
+     * @throws ModuleClassNotFoundException
+     * @throws NotModuleClassException
+     */
+    private function checkModuleClass(string $module)
+    {
+        if (!class_exists($module)){
+            throw new ModuleClassNotFoundException($module);
+        }
+        if (!in_array(ModuleInterface::class, class_implements($module))){
+            throw new NotModuleClassException($module);
+        }
+    }
+
+    /**
+     * @param string $module
+     * @param array $module_list_by_component
      * @param array $cyclic_check
      *
      * @return array
      *
      * @throws CyclicDependencyException
-     * @throws InvalidModuleFqcnException
-     * @throws InvalidComponentNameException
-     * @throws MethodNotFoundException
      * @throws ModuleClassNotFoundException
+     * @throws NotModuleClassException
      */
-    private static function resolveModuleDependencies(string $module, array $modules_by_component, array $cyclic_check) : array
+    private function resolveModuleDependencies(string $module, array $module_list_by_component, array $cyclic_check) : array
     {
         $cyclic_check[] = $module;
 
-        if (!class_exists($module)){
-            throw new ModuleClassNotFoundException($module);
-        }
-        if (!method_exists($module, 'requiredModules')){
-            throw new MethodNotFoundException($module, 'requiredModules');
-        }
+        $this->checkModuleClass($module);
+
         $dependent_modules = forward_static_call([$module, 'requiredModules']);
+
         $ret = [];
         foreach($dependent_modules as $m){
-            if (!class_exists($m)){
-                throw new InvalidModuleFqcnException($module);
-            }
             $ret[] = $m;
+
+            $this->checkModuleClass($m);
 
             if (in_array($m, $cyclic_check)){
                 throw new CyclicDependencyException($module, $m);
             }
 
-            $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component, $cyclic_check));
+            $ret = array_merge($ret, self::resolveModuleDependencies($m, $module_list_by_component, $cyclic_check));
         }
 
         $required_components = forward_static_call([$module, 'requiredComponents']);
         foreach($required_components as $c){
-            if (!Components::isComponent($c)){
-                throw new InvalidComponentNameException($c);
-            }
-            $modules = $modules_by_component[$c] ?? [];
+            $modules = $module_list_by_component[$c] ?? [];
             foreach($modules as $m){
                 $ret[] = $m;
 
@@ -117,11 +106,10 @@ final class ModuleDependencyMap
                     throw new CyclicDependencyException($module, $m);
                 }
 
-                $ret = array_merge($ret, self::resolveModuleDependencies($m, $modules_by_component, $cyclic_check));
+                $ret = array_merge($ret, self::resolveModuleDependencies($m, $module_list_by_component, $cyclic_check));
             }
         }
 
         return array_values(array_unique($ret));
     }
-
 }

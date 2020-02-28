@@ -4,15 +4,10 @@ declare(strict_types=1);
 namespace KnotLib\Module;
 
 use KnotLib\Kernel\Module\Components;
-use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\Exception\InvalidModuleFqcnException;
 
 final class ModuleDependencySorter
 {
     /** @var array */
-    private $module_component_map;
-
-    /** @var ModuleDependencyMap */
     private $module_dependency_map;
 
     /** @var array */
@@ -21,13 +16,11 @@ final class ModuleDependencySorter
     /**
      * ModuleDependencySorter constructor.
      *
-     * @param array $module_component_map
-     * @param ModuleDependencyMap $module_dependency_map
+     * @param array $module_dependency_map
      * @param array $module_list
      */
-    public function __construct(array $module_component_map, ModuleDependencyMap $module_dependency_map, array $module_list)
+    public function __construct(array $module_dependency_map, array $module_list)
     {
-        $this->module_component_map = $module_component_map;
         $this->module_dependency_map = $module_dependency_map;
         $this->module_list = $module_list;
     }
@@ -36,17 +29,43 @@ final class ModuleDependencySorter
      * Sort by module's dependency
      *
      * @return array
-     *
-     * @throws CyclicDependencyException
-     * @throws InvalidModuleFqcnException
      */
     public function sort() : array
     {
-        $module_component_map = $this->module_component_map;
         $dependency_map = $this->module_dependency_map;
         $ret = $this->module_list;
 
-        $component_priorities = [
+        usort($ret, function($a, $b) use($dependency_map){
+            $a_dependent_modules = $dependency_map[$a];
+            if (in_array($b, $a_dependent_modules)){
+                return 1;
+            }
+
+            $b_dependent_modules = $dependency_map[$b];
+            if (in_array($a, $b_dependent_modules)){
+                return -1;
+            }
+
+            $component_a = $this->getComponentType($a);
+            $component_b = $this->getComponentType($b);
+
+            return $this->compareComponentPriority($component_a, $component_b);
+        });
+
+        return $ret;
+    }
+
+    /**
+     * Compare priority of two components
+     *
+     * @param string $component_a
+     * @param string $component_b
+     *
+     * @return mixed
+     */
+    private function compareComponentPriority(string $component_a, string $component_b)
+    {
+        $component_priority_table = [
             Components::EVENTSTREAM  => 1,
             Components::EX_HANDLER   => 2,
             Components::LOGGER       => 3,
@@ -61,23 +80,18 @@ final class ModuleDependencySorter
             Components::MODULE       => 12,
         ];
 
-        usort($ret, function($a, $b) use($module_component_map, $dependency_map, $component_priorities){
-            $a_dependent_modules = $dependency_map->getDependentModules($a);
-            if (in_array($b, $a_dependent_modules)){
-                return 1;
-            }
+        return $component_priority_table[$component_a] - $component_priority_table[$component_b];
+    }
 
-            $b_dependent_modules = $dependency_map->getDependentModules($b);
-            if (in_array($a, $b_dependent_modules)){
-                return -1;
-            }
-
-            $a_priority = $component_priorities[$module_component_map[$a]];
-            $b_priority = $component_priorities[$module_component_map[$b]];
-
-            return ($a_priority - $b_priority);
-        });
-
-        return $ret;
+    /**
+     * Get component type of specified module
+     *
+     * @param string $module
+     *
+     * @return mixed
+     */
+    private function getComponentType(string $module)
+    {
+        return forward_static_call([$module, 'declareComponentType']);
     }
 }

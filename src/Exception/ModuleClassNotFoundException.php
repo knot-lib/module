@@ -3,7 +3,7 @@ namespace KnotLib\Module\Exception;
 
 use Throwable;
 
-class ModuleClassNotFoundException extends ModuleDependencyResolvingException
+class ModuleClassNotFoundException extends ModuleException
 {
     /**
      * construct

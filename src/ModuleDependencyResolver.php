@@ -1,12 +1,10 @@
 <?php
 namespace KnotLib\Module;
 
+use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\Exception\InvalidComponentNameException;
-use KnotLib\Module\Exception\MethodNotFoundException;
-use KnotLib\Module\Exception\ModuleDependencyResolvingException;
-use KnotLib\Module\Exception\InvalidModuleFqcnException;
 use KnotLib\Module\Exception\ModuleClassNotFoundException;
+use KnotLib\Module\Exception\NotModuleClassException;
 
 class ModuleDependencyResolver
 {
@@ -31,26 +29,18 @@ class ModuleDependencyResolver
      * @return array
      *
      * @throws CyclicDependencyException
-     * @throws ModuleDependencyResolvingException
+     * @throws ModuleClassNotFoundException
+     * @throws NotModuleClassException
      */
     public function resolve(callable $explain_callback = null) : array
     {
-        $module_list = $this->required_modules;
-
         // build module list by component type
         $modules_by_component = [];
-        $module_component_map = [];
-        foreach($module_list as $module)
+        foreach($this->required_modules as $module)
         {
-            if (!class_exists($module)){
-                throw new ModuleClassNotFoundException($module);
-            }
-            if (!method_exists($module, 'declareComponentType')){
-                throw new MethodNotFoundException($module, 'declareComponentType');
-            }
-            $component_type = forward_static_call([$module, 'declareComponentType']);
+            $this->checkModuleClass($module);
 
-            $module_component_map[$module] = $component_type;
+            $component_type = forward_static_call([$module, 'declareComponentType']);
 
             $modules = $modules_by_component[$component_type] ?? [];
 
@@ -60,37 +50,34 @@ class ModuleDependencyResolver
         }
 
         // make dependency map
-        $dependency_map = new ModuleDependencyMap($modules_by_component);
+        $dependency_map = new ModuleDependencyMap($this->required_modules);
 
-        try{
-            foreach($module_list as $module)
-            {
-                $dependency_map->addModuleDependencies($module);
-            }
-        }
-        catch(InvalidModuleFqcnException $e){
-            throw new ModuleDependencyResolvingException('Invalid module FQCN specified.', 0, $e);
-        }
-        catch(InvalidComponentNameException $e){
-            throw new ModuleDependencyResolvingException('Invalid component name specified.', 0, $e);
-        }
+        $dependency_map_result = $dependency_map->resolve($modules_by_component);
 
         // sort modules
-        try{
-            $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-            $sorted_module_list = $sorter->sort();
+        $sorter = new ModuleDependencySorter($dependency_map_result, $this->required_modules);
+        $sorted_module_list = $sorter->sort();
 
-            if ($explain_callback){
-                ($explain_callback)($dependency_map->toArray(), $modules_by_component);
-            }
+        if ($explain_callback){
+            ($explain_callback)($dependency_map_result, $modules_by_component);
+        }
 
-            return $sorted_module_list;
+        return $sorted_module_list;
+    }
+
+    /**
+     * @param string $module
+     *
+     * @throws ModuleClassNotFoundException
+     * @throws NotModuleClassException
+     */
+    private function checkModuleClass(string $module)
+    {
+        if (!class_exists($module)){
+            throw new ModuleClassNotFoundException($module);
         }
-        catch(CyclicDependencyException $e){
-            throw new ModuleDependencyResolvingException('Detected a cyclic module dependency.', 0, $e);
-        }
-        catch(InvalidModuleFqcnException $e){
-            throw new ModuleDependencyResolvingException('Invalid module FQCN specified.', 0, $e);
+        if (!in_array(ModuleInterface::class, class_implements($module))){
+            throw new NotModuleClassException($module);
         }
     }
 

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace KnotLib\Module\Test;
 
-use KnotLib\Kernel\Module\Components;
 use KnotLib\Module\ModuleDependencyMap;
 use KnotLib\Module\ModuleDependencySorter;
 use KnotLib\Module\Test\Component\EventStreamModule;
@@ -24,23 +23,23 @@ final class ModuleDependencySorterTest extends TestCase
         // ModuleA, ModuleB
         //===================================
         $module_list = [ ModuleA::class, ModuleB::class ];
-        $module_component_map = [ ModuleA::class => Components::MODULE, ModuleB::class => Components::MODULE ];
-        $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ModuleB::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
         $sorted_module_list = $sorter->sort();
 
         $this->assertEquals([ModuleA::class, ModuleB::class], $sorted_module_list);
 
         $module_list = [ ModuleB::class, ModuleA::class ];
-        $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ModuleB::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-        $sorted_module_list = $sorter->sort();
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
+        $result = $sorter->sort();
 
-        $this->assertEquals([ModuleA::class, ModuleB::class], $sorted_module_list);
+        $this->assertEquals(
+            [
+                ModuleA::class,
+                ModuleB::class
+            ],
+            $result);
     }
 
     /**
@@ -52,25 +51,24 @@ final class ModuleDependencySorterTest extends TestCase
         // ModuleA, ModuleB, ModuleC
         //===================================
         $module_list = [ ModuleA::class, ModuleB::class, ModuleC::class ];
-        $module_component_map = [ ModuleA::class => Components::MODULE, ModuleB::class => Components::MODULE, ModuleC::class => Components::MODULE ];
-        $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ModuleB::class);
-        $dependency_map->addModuleDependencies(ModuleC::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
         $sorted_module_list = $sorter->sort();
 
         $this->assertEquals([ModuleA::class, ModuleB::class, ModuleC::class], $sorted_module_list);
 
         $module_list = [ ModuleC::class, ModuleB::class, ModuleA::class ];
-        $dependency_map = new ModuleDependencyMap();
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ModuleB::class);
-        $dependency_map->addModuleDependencies(ModuleC::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-        $sorted_module_list = $sorter->sort();
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
+        $result = $sorter->sort();
 
-        $this->assertEquals([ModuleA::class, ModuleB::class, ModuleC::class], $sorted_module_list);
+        $this->assertEquals(
+            [
+                ModuleA::class,
+                ModuleB::class,
+                ModuleC::class
+            ],
+            $result);
     }
 
     /**
@@ -82,38 +80,24 @@ final class ModuleDependencySorterTest extends TestCase
         // ModuleA, ExHandlerModule, LoggerModule, EventStreamModule
         //======================================================================
         $module_list = [ ModuleA::class, ExHandlerModule::class, LoggerModule::class, EventStreamModule::class ];
-        $modules_by_component = [
-            Components::EX_HANDLER => [ ExHandlerModule::class ],
-            Components::LOGGER => [ LoggerModule::class ],
-            Components::EVENTSTREAM => [ EventStreamModule::class ],
-            Components::MODULE => [ ModuleA::class ],
-        ];
-        $module_component_map = [
-            ModuleA::class => Components::MODULE,
-            ExHandlerModule::class => Components::EX_HANDLER,
-            LoggerModule::class => Components::LOGGER,
-            EventStreamModule::class => Components::EVENTSTREAM,
-        ];
-        $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ExHandlerModule::class);
-        $dependency_map->addModuleDependencies(LoggerModule::class);
-        $dependency_map->addModuleDependencies(EventStreamModule::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
         $sorted_module_list = $sorter->sort();
 
-        $this->assertEquals([ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class], $sorted_module_list);
+        $this->assertEquals([EventStreamModule::class, ExHandlerModule::class, LoggerModule::class, ModuleA::class], $sorted_module_list);
 
         $module_list = [ EventStreamModule::class, LoggerModule::class, ModuleA::class, ExHandlerModule::class,  ];
-        $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ExHandlerModule::class);
-        $dependency_map->addModuleDependencies(LoggerModule::class);
-        $dependency_map->addModuleDependencies(EventStreamModule::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-        $sorted_module_list = $sorter->sort();
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
+        $result = $sorter->sort();
 
-        $this->assertEquals([ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class], $sorted_module_list);
+        $this->assertEquals(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class, ModuleA::class
+            ],
+            $result);
     }
 
     /**
@@ -133,66 +117,21 @@ final class ModuleDependencySorterTest extends TestCase
             ResponseModule::class,
             PipelineModule::class,
         ];
-        $module_component_map = [
-            ModuleA::class => Components::MODULE,
-            ModuleB::class => Components::MODULE,
-            ExHandlerModule::class => Components::EX_HANDLER,
-            LoggerModule::class => Components::LOGGER,
-            EventStreamModule::class => Components::EVENTSTREAM,
-            ResponseModule::class => Components::RESPONSE,
-            PipelineModule::class => Components::PIPELINE,
-        ];
-        $modules_by_component = [
-            Components::EX_HANDLER => [ ExHandlerModule::class ],
-            Components::LOGGER => [ LoggerModule::class ],
-            Components::EVENTSTREAM => [ EventStreamModule::class ],
-            Components::RESPONSE => [ ResponseModule::class ],
-            Components::PIPELINE => [ PipelineModule::class ],
-            Components::MODULE => [ ModuleA::class, ModuleB::class ],
-        ];
-        $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ModuleB::class);
-        $dependency_map->addModuleDependencies(ExHandlerModule::class);
-        $dependency_map->addModuleDependencies(LoggerModule::class);
-        $dependency_map->addModuleDependencies(EventStreamModule::class);
-        $dependency_map->addModuleDependencies(ResponseModule::class);
-        $dependency_map->addModuleDependencies(PipelineModule::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-        $sorted_module_list = $sorter->sort();
+        $dependency_map = new ModuleDependencyMap($module_list);
+        $sorter = new ModuleDependencySorter($dependency_map->resolve(), $module_list);
+        $result = $sorter->sort();
 
-        $expected = [
-            ExHandlerModule::class,
-            EventStreamModule::class,
-            LoggerModule::class,
-            ResponseModule::class,
-            PipelineModule::class,
-            ModuleA::class,
-            ModuleB::class,
-        ];
-
-        $this->assertEquals($expected, $sorted_module_list);
-
-        $module_list = [
-            ModuleA::class,
-            ModuleB::class,
-            ExHandlerModule::class,
-            LoggerModule::class,
-            EventStreamModule::class,
-            ResponseModule::class,
-            PipelineModule::class,
-        ];
-        $dependency_map = new ModuleDependencyMap($modules_by_component);
-        $dependency_map->addModuleDependencies(ModuleA::class);
-        $dependency_map->addModuleDependencies(ModuleB::class);
-        $dependency_map->addModuleDependencies(ExHandlerModule::class);
-        $dependency_map->addModuleDependencies(LoggerModule::class);
-        $dependency_map->addModuleDependencies(EventStreamModule::class);
-        $dependency_map->addModuleDependencies(ResponseModule::class);
-        $dependency_map->addModuleDependencies(PipelineModule::class);
-        $sorter = new ModuleDependencySorter($module_component_map, $dependency_map, $module_list);
-        $sorted_module_list = $sorter->sort();
-
-        $this->assertEquals($expected, $sorted_module_list);
+        $this->assertEquals(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ResponseModule::class,
+                PipelineModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $result);
     }
+
 }
