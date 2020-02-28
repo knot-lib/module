@@ -98,9 +98,14 @@ class ModuleDependencyResolverTest extends TestCase
         ]);
 
         $result = $resolver->resolve();
-        $this->assertEquals([
-            ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class
-        ], $result);
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class
+            ],
+            $result);
     }
 
     /**
@@ -117,9 +122,15 @@ class ModuleDependencyResolverTest extends TestCase
         ]);
 
         $result = $resolver->resolve();
-        $this->assertSame([
-            ExHandlerModule::class, EventStreamModule::class, LoggerModule::class, ModuleA::class, ModuleB::class
-        ], $result);
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+                ModuleB::class
+            ],
+            $result);
     }
 
     /**
@@ -138,8 +149,8 @@ class ModuleDependencyResolverTest extends TestCase
         $result = $resolver->resolve();
         $this->assertEquals(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ModuleA::class,
                 ModuleB::class,
@@ -183,8 +194,8 @@ class ModuleDependencyResolverTest extends TestCase
         $result = $resolver->resolve();
         $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 CacheModule::class,
                 DiModule::class,
@@ -227,8 +238,8 @@ class ModuleDependencyResolverTest extends TestCase
         $result = $resolver->resolve();
         $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 CacheModule::class,
                 DiModule::class,
@@ -286,8 +297,8 @@ class ModuleDependencyResolverTest extends TestCase
         $result = $resolver->resolve();
         $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ModuleA::class,
                 ModuleB::class,
@@ -311,8 +322,8 @@ class ModuleDependencyResolverTest extends TestCase
         $result = $resolver->resolve();
         $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ModuleA::class,
                 ModuleB::class,
@@ -337,8 +348,8 @@ class ModuleDependencyResolverTest extends TestCase
         $result = $resolver->resolve();
         $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ResponseModule::class,
                 PipelineModule::class,
@@ -365,10 +376,10 @@ class ModuleDependencyResolverTest extends TestCase
         ]);
 
         $result = $resolver->resolve();
-        $this->assertEquals(
+        $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ResponseModule::class,
                 PipelineModule::class,
@@ -394,10 +405,10 @@ class ModuleDependencyResolverTest extends TestCase
         ]);
 
         $result = $resolver->resolve();
-        $this->assertEquals(
+        $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ModuleA::class,
                 ModuleB::class,
@@ -423,10 +434,10 @@ class ModuleDependencyResolverTest extends TestCase
         ]);
 
         $result = $resolver->resolve();
-        $this->assertEquals(
+        $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ResponseModule::class,
                 PipelineModule::class,
@@ -454,10 +465,10 @@ class ModuleDependencyResolverTest extends TestCase
         ]);
 
         $result = $resolver->resolve();
-        $this->assertEquals(
+        $this->assertSame(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 CacheModule::class,
                 DiModule::class,
