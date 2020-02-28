@@ -2,6 +2,7 @@
 namespace KnotLib\Module\Application;
 
 use KnotLib\Kernel\Exception\ModuleInstallationException;
+use KnotLib\Kernel\FileSystem\FileSystemInterface;
 use KnotLib\Kernel\Kernel\AbstractApplication;
 use KnotLib\Kernel\FileSystem\Dir;
 
@@ -12,6 +13,23 @@ use Stk2k\File\File;
 
 abstract class SimpleApplication extends AbstractApplication implements ApplicationInterface
 {
+    /** @var bool */
+    private $use_dependency_cache;
+
+    /**
+     * SimpleApplication constructor.
+     *
+     * @param bool $use_dependency_cache
+     *
+     * @param FileSystemInterface|null $filesystem
+     */
+    public function __construct(FileSystemInterface $filesystem = null, bool $use_dependency_cache = true)
+    {
+        parent::__construct($filesystem);
+
+        $this->use_dependency_cache = $use_dependency_cache;
+    }
+
     /**
      * Install required modules
      *
@@ -25,7 +43,7 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
             $filename = 'dependency.' . sha1(implode("\n",$this->getRequiredModules())) . '.cache.php';
             $dependency_cache = $this->filesystem()->getFile(Dir::CACHE, $filename);
 
-            if (file_exists($dependency_cache)){
+            if ($this->use_dependency_cache && file_exists($dependency_cache)){
                 /** @noinspection PhpIncludeInspection */
                 $resolved_modules = require($dependency_cache);
                 if (!is_array($resolved_modules)){

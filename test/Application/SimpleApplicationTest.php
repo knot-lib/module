@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection DuplicatedCode */
+
 namespace KnotLib\Module\Test;
 
 use Throwable;
@@ -16,7 +17,7 @@ class SimpleApplicationTest extends TestCase
         $app = new TestSimpleApplication();
         $this->assertSame([], $app->getInstalledModules());
 
-        $app = new TestSimpleApplication(TestFileSystemFactory::createFileSystem());
+        $app = new TestSimpleApplication(TestFileSystemFactory::createFileSystem(), false);
 
         $app->requireModule(ModuleA::class);
         $app->requireModule(ExHandlerModule::class);
@@ -28,16 +29,10 @@ class SimpleApplicationTest extends TestCase
         catch(Throwable $e){
             $this->fail($e->getMessage());
         }
-        $expected = [
-            ExHandlerModule::class,
-            EventStreamModule::class,
-            LoggerModule::class,
-            ModuleA::class,
-        ];
         $this->assertEquals(
             [
-                ExHandlerModule::class,
                 EventStreamModule::class,
+                ExHandlerModule::class,
                 LoggerModule::class,
                 ModuleA::class,
             ],
@@ -46,9 +41,16 @@ class SimpleApplicationTest extends TestCase
         $cache_file = dirname(__DIR__) . '/files/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php';
         $this->assertFileExists($cache_file);
         /** @noinspection PhpIncludeInspection */
-        $this->assertEquals($expected, require($cache_file));
+        $this->assertEquals(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+            ],
+            require($cache_file));
 
-        $app = new TestSimpleApplication(TestFileSystemFactory::createFileSystem());
+        $app = new TestSimpleApplication(TestFileSystemFactory::createFileSystem(), false);
 
         $app->requireModule(ModuleA::class);
         $app->requireModule(ExHandlerModule::class);
@@ -60,20 +62,28 @@ class SimpleApplicationTest extends TestCase
         catch(Throwable $e){
             $this->fail($e->getMessage());
         }
-        $expected = [
-            ExHandlerModule::class,
-            EventStreamModule::class,
-            LoggerModule::class,
-            ModuleA::class,
-        ];
-        $this->assertSame($expected, $app->getInstalledModules());
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+            ],
+            $app->getInstalledModules());
         //$cache_file = vfsStream::url('root/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php');
         $cache_file = dirname(__DIR__) . '/files/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php';
         $this->assertFileExists($cache_file);
         /** @noinspection PhpIncludeInspection */
-        $this->assertEquals($expected, require($cache_file));
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+            ],
+            require($cache_file));
 
-        $app = new TestSimpleApplication(TestFileSystemFactory::createFileSystem());
+        $app = new TestSimpleApplication(TestFileSystemFactory::createFileSystem(), false);
 
         $app->requireModule(ModuleA::class);
         $app->requireModule(ModuleB::class);
@@ -86,18 +96,27 @@ class SimpleApplicationTest extends TestCase
         catch(Throwable $e){
             $this->fail($e->getMessage());
         }
-        $expected = [
-            ExHandlerModule::class,
-            EventStreamModule::class,
-            LoggerModule::class,
-            ModuleA::class,
-            ModuleB::class,
-        ];
-        $this->assertSame($expected, $app->getInstalledModules());
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            $app->getInstalledModules());
         //$cache_file = vfsStream::url('root/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php');
         $cache_file = dirname(__DIR__) . '/files/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php';
         $this->assertFileExists($cache_file);
         /** @noinspection PhpIncludeInspection */
-        $this->assertEquals($expected, require($cache_file));
+        $this->assertEquals(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+                ModuleB::class,
+            ],
+            require($cache_file));
     }
 }
