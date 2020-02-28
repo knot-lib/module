@@ -34,7 +34,14 @@ class SimpleApplicationTest extends TestCase
             LoggerModule::class,
             ModuleA::class,
         ];
-        $this->assertSame($expected, $app->getInstalledModules());
+        $this->assertEquals(
+            [
+                ExHandlerModule::class,
+                EventStreamModule::class,
+                LoggerModule::class,
+                ModuleA::class,
+            ],
+            $app->getInstalledModules());
         //$cache_file = vfsStream::url('root/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php');
         $cache_file = dirname(__DIR__) . '/files/cache/dependency.' . sha1(implode("\n",$app->getRequiredModules())) . '.cache.php';
         $this->assertFileExists($cache_file);

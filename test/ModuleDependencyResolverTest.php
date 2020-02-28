@@ -538,7 +538,6 @@ class ModuleDependencyResolverTest extends TestCase
             ], $modules_by_component);
 
             // check sort logs
-            var_export($sort_logs);
             $this->assertEquals([
                 0 => 'KnotLib\\Module\\Test\\ModuleA < KnotLib\\Module\\Test\\ModuleB(module dependency)',
                 1 => 'KnotLib\\Module\\Test\\ModuleB = KnotLib\\Module\\Test\\ModuleD',
