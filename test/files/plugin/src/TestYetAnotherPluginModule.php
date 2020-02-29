@@ -18,7 +18,7 @@ final class TestYetAnotherPluginModule extends AbstractModule implements ModuleI
      *
      * @return array
      */
-    public static function requiredComponents() : array
+    public static function requiredComponentTypes() : array
     {
         return [
         ];

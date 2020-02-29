@@ -23,7 +23,7 @@ final class EngineModule extends AbstractModule implements ModuleInterface
     /**
      * {@inheritDoc}
      */
-    public static function requiredComponents() : array
+    public static function requiredComponentTypes() : array
     {
         return [
             Components::LOGGER

@@ -33,7 +33,7 @@ class ModuleG implements ModuleInterface
      *
      * @return array
      */
-    public static function requiredComponents() : array
+    public static function requiredComponentTypes() : array
     {
         return [];
     }

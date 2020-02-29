@@ -96,7 +96,7 @@ final class ModuleDependencyMap
             $ret = array_merge($ret, self::resolveModuleDependencies($m, $module_list_by_component, $cyclic_check));
         }
 
-        $required_components = forward_static_call([$module, 'requiredComponents']);
+        $required_components = forward_static_call([$module, 'requiredComponentTypes']);
         foreach($required_components as $c){
             $modules = $module_list_by_component[$c] ?? [];
             foreach($modules as $m){

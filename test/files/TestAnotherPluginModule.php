@@ -18,7 +18,7 @@ final class TestAnotherPluginModule extends AbstractModule implements ModuleInte
      *
      * @return array
      */
-    public static function requiredComponents() : array
+    public static function requiredComponentTypes() : array
     {
         return [
         ];
