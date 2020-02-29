@@ -5,7 +5,7 @@ namespace KnotLib\Module\Test;
 
 use PHPUnit\Framework\TestCase;
 
-final class PloginModuleLoaderTest extends TestCase
+final class PluginModuleLoaderTest extends TestCase
 {
     /**
      * @runInSeparateProcess
