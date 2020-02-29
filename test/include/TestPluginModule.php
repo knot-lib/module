@@ -7,11 +7,10 @@ use Throwable;
 
 use KnotLib\Kernel\Exception\ModuleInstallationException;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
-use KnotLib\Kernel\Module\AbstractModule;
 use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Kernel\Module\ModuleInterface;
 
-final class TestPluginModule extends AbstractModule implements ModuleInterface
+final class TestPluginModule implements ModuleInterface
 {
     /**
      * Declare dependent on components
