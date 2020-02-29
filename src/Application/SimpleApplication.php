@@ -56,7 +56,17 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
 
                 $this->setResolvedModules($resolved_modules);
 
-                $source_code = "<?php" . PHP_EOL . "return " . var_export($this->getResolvedModules(), true) . ";";
+                $source_code = "<?php" . PHP_EOL;
+                $source_code .= "/*" . PHP_EOL;
+                $source_code .= "  Module dependency cache created by kNot Framework" . PHP_EOL;
+                $source_code .= "  Application: " . get_class($this) . PHP_EOL;
+                $source_code .= "  Created date: " . date('Y-m-d H:i:s') . PHP_EOL;
+                $source_code .= "  Required modules: " . PHP_EOL;
+                foreach($this->getRequiredModules() as $idx => $module){
+                    $source_code .= "        [$idx]{$module}" . PHP_EOL;
+                }
+                $source_code .= "*/" . PHP_EOL;
+                $source_code .= "return " . var_export($this->getResolvedModules(), true) . ";" . PHP_EOL;
 
                 (new File($dependency_cache))->getParent()->makeDirectory();
 
