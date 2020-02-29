@@ -3,7 +3,7 @@
 
 namespace KnotLib\Module\Test;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Module\Exception\ModuleClassNotFoundException;
 use KnotLib\Module\Exception\NotModuleClassException;
 use KnotLib\Module\ModuleDependencyResolver;
@@ -529,12 +529,12 @@ class ModuleDependencyResolverTest extends TestCase
 
             // check module list by component
             $this->assertEquals([
-                Components::MODULE => [ ModuleA::class, ModuleB::class, ModuleD::class ],
-                Components::DI => [ DiModule::class ],
-                Components::EVENTSTREAM => [ EventStreamModule::class ],
-                Components::LOGGER => [ LoggerModule::class ],
-                Components::EX_HANDLER => [ ExHandlerModule::class ],
-                Components::CACHE => [ CacheModule::class ],
+                ComponentTypes::APPLICATION => [ ModuleA::class, ModuleB::class, ModuleD::class ],
+                ComponentTypes::DI => [ DiModule::class ],
+                ComponentTypes::EVENTSTREAM => [ EventStreamModule::class ],
+                ComponentTypes::LOGGER => [ LoggerModule::class ],
+                ComponentTypes::EX_HANDLER => [ ExHandlerModule::class ],
+                ComponentTypes::CACHE => [ CacheModule::class ],
             ], $modules_by_component);
 
             // check sort logs

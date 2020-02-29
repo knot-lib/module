@@ -1,7 +1,7 @@
 <?php
 namespace KnotLib\Module\Test\Component;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 
@@ -34,9 +34,9 @@ class PipelineModule implements ModuleInterface
     public static function requiredComponents() : array
     {
         return [
-            Components::EVENTSTREAM,
-            Components::EX_HANDLER,
-            Components::RESPONSE,
+            ComponentTypes::EVENTSTREAM,
+            ComponentTypes::EX_HANDLER,
+            ComponentTypes::RESPONSE,
         ];
     }
 
@@ -47,7 +47,7 @@ class PipelineModule implements ModuleInterface
      */
     public static function declareComponentType() : string
     {
-        return Components::PIPELINE;
+        return ComponentTypes::PIPELINE;
     }
 
     /**

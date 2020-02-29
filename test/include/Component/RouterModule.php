@@ -1,7 +1,7 @@
 <?php
 namespace KnotLib\Module\Test\Component;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 
@@ -34,8 +34,8 @@ class RouterModule implements ModuleInterface
     public static function requiredComponents() : array
     {
         return [
-            Components::EVENTSTREAM,
-            Components::PIPELINE,
+            ComponentTypes::EVENTSTREAM,
+            ComponentTypes::PIPELINE,
         ];
     }
 
@@ -46,7 +46,7 @@ class RouterModule implements ModuleInterface
      */
     public static function declareComponentType() : string
     {
-        return Components::ROUTER;
+        return ComponentTypes::ROUTER;
     }
 
     /**

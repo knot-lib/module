@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace KnotLib\Module\Test;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Module\Exception\CyclicDependencyException;
 use KnotLib\Module\ModuleDependencyMap;
 use KnotLib\Module\Test\Component\EventStreamModule;
@@ -119,9 +119,9 @@ final class ModuleDependencyMapTest extends TestCase
         $map = new ModuleDependencyMap([ModuleI::class, ModuleJ::class]);
 
         $module_list_by_component = [
-            Components::EX_HANDLER => [ ExHandlerModule::class ],
-            Components::LOGGER => [ LoggerModule::class ],
-            Components::EVENTSTREAM => [ EventStreamModule::class ],
+            ComponentTypes::EX_HANDLER => [ ExHandlerModule::class ],
+            ComponentTypes::LOGGER => [ LoggerModule::class ],
+            ComponentTypes::EVENTSTREAM => [ EventStreamModule::class ],
         ];
 
         $map->resolve($module_list_by_component);
@@ -144,9 +144,9 @@ final class ModuleDependencyMapTest extends TestCase
         $map = new ModuleDependencyMap([ModuleK::class]);
 
         $module_list_by_component = [
-            Components::EX_HANDLER => [ ExHandlerModule::class ],
-            Components::LOGGER => [ LoggerModule::class ],
-            Components::EVENTSTREAM => [ EventStreamModule::class ],
+            ComponentTypes::EX_HANDLER => [ ExHandlerModule::class ],
+            ComponentTypes::LOGGER => [ LoggerModule::class ],
+            ComponentTypes::EVENTSTREAM => [ EventStreamModule::class ],
         ];
 
         $result = $map->resolve($module_list_by_component);

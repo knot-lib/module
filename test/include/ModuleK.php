@@ -1,7 +1,7 @@
 <?php
 namespace KnotLib\Module\Test;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 
@@ -36,9 +36,9 @@ class ModuleK implements ModuleInterface
     public static function requiredComponents() : array
     {
         return [
-            Components::EX_HANDLER,
-            Components::LOGGER,
-            Components::EVENTSTREAM,
+            ComponentTypes::EX_HANDLER,
+            ComponentTypes::LOGGER,
+            ComponentTypes::EVENTSTREAM,
         ];
     }
 
@@ -49,7 +49,7 @@ class ModuleK implements ModuleInterface
      */
     public static function declareComponentType() : string
     {
-        return Components::MODULE;
+        return ComponentTypes::APPLICATION;
     }
 
     /**

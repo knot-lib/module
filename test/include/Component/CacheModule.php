@@ -1,7 +1,7 @@
 <?php
 namespace KnotLib\Module\Test\Component;
 
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 
@@ -35,7 +35,7 @@ class CacheModule implements ModuleInterface
     public static function requiredComponents() : array
     {
         return [
-            Components::LOGGER
+            ComponentTypes::LOGGER
         ];
     }
 
@@ -46,7 +46,7 @@ class CacheModule implements ModuleInterface
      */
     public static function declareComponentType() : string
     {
-        return Components::CACHE;
+        return ComponentTypes::CACHE;
     }
 
     /**

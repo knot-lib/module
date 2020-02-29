@@ -8,7 +8,7 @@ use Throwable;
 use KnotLib\Kernel\Exception\ModuleInstallationException;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 use KnotLib\Kernel\Module\AbstractModule;
-use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 use KnotLib\Kernel\Module\ModuleInterface;
 
 final class TestRequiredModule extends AbstractModule implements ModuleInterface
@@ -40,7 +40,7 @@ final class TestRequiredModule extends AbstractModule implements ModuleInterface
      */
     public static function declareComponentType(): string
     {
-        return Components::MODULE;
+        return ComponentTypes::APPLICATION;
     }
 
     /**

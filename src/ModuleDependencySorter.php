@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace KnotLib\Module;
 
 use KnotLib\Kernel\Module\Components;
+use KnotLib\Kernel\Module\ComponentTypes;
 
 final class ModuleDependencySorter
 {
@@ -89,18 +90,20 @@ final class ModuleDependencySorter
     private function compareComponentPriority(string $component_a, string $component_b)
     {
         $component_priority_table = [
-            Components::EVENTSTREAM  => 1,
-            Components::EX_HANDLER   => 2,
-            Components::LOGGER       => 3,
-            Components::REQUEST      => 4,
-            Components::RESPONSE     => 5,
-            Components::PIPELINE     => 6,
-            Components::SESSION      => 7,
-            Components::CACHE        => 8,
-            Components::DI           => 9,
-            Components::ROUTER       => 10,
-            Components::RESPONDER    => 11,
-            Components::MODULE       => 12,
+            ComponentTypes::EVENTSTREAM  => 1,
+            ComponentTypes::EX_HANDLER   => 2,
+            ComponentTypes::LOGGER       => 3,
+            ComponentTypes::REQUEST      => 4,
+            ComponentTypes::RESPONSE     => 5,
+            ComponentTypes::PIPELINE     => 6,
+            ComponentTypes::SESSION      => 7,
+            ComponentTypes::CACHE        => 8,
+            ComponentTypes::DI           => 9,
+            ComponentTypes::ROUTER       => 10,
+            ComponentTypes::RESPONDER    => 11,
+            ComponentTypes::SERVICE      => 12,
+            ComponentTypes::MIDDLEWARE   => 13,
+            ComponentTypes::APPLICATION  => 14,
         ];
 
         return $component_priority_table[$component_a] - $component_priority_table[$component_b];
