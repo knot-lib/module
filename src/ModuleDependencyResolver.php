@@ -1,10 +1,12 @@
 <?php
-namespace KnotLib\Module;
+declare(strict_types=1);
 
-use KnotLib\Kernel\Module\ModuleInterface;
-use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\Exception\ModuleClassNotFoundException;
-use KnotLib\Module\Exception\NotModuleClassException;
+namespace knotlib\module;
+
+use knotlib\kernel\module\ModuleInterface;
+use knotlib\module\exception\CyclicDependencyException;
+use knotlib\module\exception\ModuleClassNotFoundException;
+use knotlib\module\exception\NotModuleClassException;
 
 class ModuleDependencyResolver
 {
@@ -24,7 +26,7 @@ class ModuleDependencyResolver
     /**
      * Return resolved modules
      *
-     * @param callable $explain_callback
+     * @param callable|null $explain_callback
      *
      * @return array
      *

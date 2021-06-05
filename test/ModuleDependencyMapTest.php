@@ -1,15 +1,24 @@
 <?php
 declare(strict_types=1);
 
-namespace KnotLib\Module\Test;
+namespace knotlib\module\test;
 
-use KnotLib\Kernel\Module\ComponentTypes;
-use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\ModuleDependencyMap;
-use KnotLib\Module\Test\Component\EventStreamModule;
-use KnotLib\Module\Test\Component\ExHandlerModule;
-use KnotLib\Module\Test\Component\LoggerModule;
 use PHPUnit\Framework\TestCase;
+
+use knotlib\kernel\module\ComponentTypes;
+use knotlib\module\exception\CyclicDependencyException;
+use knotlib\module\ModuleDependencyMap;
+use knotlib\module\test\classes\component\EventStreamModule;
+use knotlib\module\test\classes\component\ExHandlerModule;
+use knotlib\module\test\classes\component\LoggerModule;
+use knotlib\module\test\classes\ModuleA;
+use knotlib\module\test\classes\ModuleB;
+use knotlib\module\test\classes\ModuleC;
+use knotlib\module\test\classes\ModuleF;
+use knotlib\module\test\classes\ModuleH;
+use knotlib\module\test\classes\ModuleI;
+use knotlib\module\test\classes\ModuleJ;
+use knotlib\module\test\classes\ModuleK;
 
 final class ModuleDependencyMapTest extends TestCase
 {

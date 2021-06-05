@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace KnotLib\Module;
+namespace knotlib\module;
 
-use KnotLib\Kernel\Module\ModuleInterface;
-use KnotLib\Module\Exception\CyclicDependencyException;
-use KnotLib\Module\Exception\NotModuleClassException;
-use KnotLib\Module\Exception\ModuleClassNotFoundException;
+use knotlib\kernel\module\ModuleInterface;
+use knotlib\module\exception\CyclicDependencyException;
+use knotlib\module\exception\NotModuleClassException;
+use knotlib\module\exception\ModuleClassNotFoundException;
 
 final class ModuleDependencyMap
 {

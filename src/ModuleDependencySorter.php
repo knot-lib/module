@@ -1,10 +1,9 @@
 <?php /** @noinspection PhpDocRedundantThrowsInspection */
 declare(strict_types=1);
 
-namespace KnotLib\Module;
+namespace knotlib\module;
 
-use KnotLib\Kernel\Module\Components;
-use KnotLib\Kernel\Module\ComponentTypes;
+use knotlib\kernel\module\ComponentTypes;
 
 final class ModuleDependencySorter
 {
@@ -29,7 +28,7 @@ final class ModuleDependencySorter
     /**
      * Sort by module's dependency
      *
-     * @param callable $sort_callback
+     * @param callable|null $sort_callback
      *
      * @return array
      */
@@ -47,8 +46,8 @@ final class ModuleDependencySorter
 
             if ($res !== 0){
                 if ($sort_callback){
-                    $log = $res > 0 ? "{$a} > {$b}" : "{$a} < {$b}";
-                    ($sort_callback)("{$log}(component priority)");
+                    $log = $res > 0 ? "$a > $b" : "$a < $b";
+                    ($sort_callback)("$log(component priority)");
                 }
                 return $res;
             }
@@ -56,7 +55,7 @@ final class ModuleDependencySorter
             $a_dependent_modules = $dependency_map[$a];
             if (in_array($b, $a_dependent_modules)){
                 if ($sort_callback){
-                    ($sort_callback)("{$a} > {$b}(module dependency)");
+                    ($sort_callback)("$a > $b(module dependency)");
                 }
                 return 1;
             }
@@ -64,13 +63,13 @@ final class ModuleDependencySorter
             $b_dependent_modules = $dependency_map[$b];
             if (in_array($a, $b_dependent_modules)){
                 if ($sort_callback){
-                    ($sort_callback)("{$a} < {$b}(module dependency)");
+                    ($sort_callback)("$a < $b(module dependency)");
                 }
                 return -1;
             }
 
             if ($sort_callback){
-                ($sort_callback)("{$a} = {$b}");
+                ($sort_callback)("$a = $b");
             }
 
             return $res;
@@ -85,9 +84,9 @@ final class ModuleDependencySorter
      * @param string $component_a
      * @param string $component_b
      *
-     * @return mixed
+     * @return int
      */
-    private function compareComponentPriority(string $component_a, string $component_b)
+    private function compareComponentPriority(string $component_a, string $component_b): int
     {
         $component_priority_table = [
             ComponentTypes::EVENTSTREAM  => 1,

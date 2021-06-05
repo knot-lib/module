@@ -1,16 +1,20 @@
 <?php /** @noinspection DuplicatedCode */
 declare(strict_types=1);
 
-namespace KnotLib\Module\Test;
+namespace knotlib\module\test;
 
-use KnotLib\Module\ModuleDependencyMap;
-use KnotLib\Module\ModuleDependencySorter;
-use KnotLib\Module\Test\Component\EventStreamModule;
-use KnotLib\Module\Test\Component\ExHandlerModule;
-use KnotLib\Module\Test\Component\LoggerModule;
-use KnotLib\Module\Test\Component\PipelineModule;
-use KnotLib\Module\Test\Component\ResponseModule;
 use PHPUnit\Framework\TestCase;
+
+use knotlib\module\ModuleDependencyMap;
+use knotlib\module\ModuleDependencySorter;
+use knotlib\module\test\classes\component\EventStreamModule;
+use knotlib\module\test\classes\component\ExHandlerModule;
+use knotlib\module\test\classes\component\LoggerModule;
+use knotlib\module\test\classes\component\PipelineModule;
+use knotlib\module\test\classes\component\ResponseModule;
+use knotlib\module\test\classes\ModuleA;
+use knotlib\module\test\classes\ModuleB;
+use knotlib\module\test\classes\ModuleC;
 
 final class ModuleDependencySorterTest extends TestCase
 {

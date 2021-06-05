@@ -1,22 +1,31 @@
 <?php
 /** @noinspection PhpRedundantCatchClauseInspection */
 
-namespace KnotLib\Module\Test;
+namespace knotlib\module\test;
 
-use KnotLib\Kernel\Module\ComponentTypes;
-use KnotLib\Module\Exception\ModuleClassNotFoundException;
-use KnotLib\Module\Exception\NotModuleClassException;
-use KnotLib\Module\ModuleDependencyResolver;
-use KnotLib\Module\Test\Component\CacheModule;
-use KnotLib\Module\Test\Component\DiModule;
-use KnotLib\Module\Test\Component\EventStreamModule;
-use KnotLib\Module\Test\Component\ExHandlerModule;
-use KnotLib\Module\Test\Component\LoggerModule;
-use KnotLib\Module\Test\Component\PipelineModule;
-use KnotLib\Module\Test\Component\ResponseModule;
-use KnotLib\Module\Test\Component\RouterModule;
-use KnotLib\Module\Exception\CyclicDependencyException;
 use PHPUnit\Framework\TestCase;
+
+use knotlib\kernel\module\componentTypes;
+use knotlib\module\exception\ModuleClassNotFoundException;
+use knotlib\module\exception\NotModuleClassException;
+use knotlib\module\ModuleDependencyResolver;
+use knotlib\module\test\classes\component\CacheModule;
+use knotlib\module\test\classes\component\DiModule;
+use knotlib\module\test\classes\component\EventStreamModule;
+use knotlib\module\test\classes\component\ExHandlerModule;
+use knotlib\module\test\classes\component\LoggerModule;
+use knotlib\module\test\classes\component\PipelineModule;
+use knotlib\module\test\classes\component\ResponseModule;
+use knotlib\module\test\classes\component\RouterModule;
+use knotlib\module\exception\CyclicDependencyException;
+use knotlib\module\test\classes\ModuleA;
+use knotlib\module\test\classes\ModuleB;
+use knotlib\module\test\classes\ModuleC;
+use knotlib\module\test\classes\ModuleD;
+use knotlib\module\test\classes\ModuleE;
+use knotlib\module\test\classes\ModuleF;
+use knotlib\module\test\classes\ModuleG;
+use knotlib\module\test\classes\ModuleH;
 
 /**
  * Class ModuleDependencyResolverTest
@@ -273,10 +282,7 @@ class ModuleDependencyResolverTest extends TestCase
         catch(CyclicDependencyException $e){
             $this->assertTrue(true);
         }
-        catch(ModuleClassNotFoundException $e){
-            $this->fail($e->getMessage());
-        }
-        catch(NotModuleClassException $e){
+        catch(ModuleClassNotFoundException | NotModuleClassException $e){
             $this->fail($e->getMessage());
         }
     }
@@ -593,38 +599,38 @@ class ModuleDependencyResolverTest extends TestCase
 
             // check module list by component
             $this->assertEquals([
-                ComponentTypes::APPLICATION => [ ModuleA::class, ModuleB::class, ModuleD::class ],
-                ComponentTypes::DI => [ DiModule::class ],
-                ComponentTypes::EVENTSTREAM => [ EventStreamModule::class ],
-                ComponentTypes::LOGGER => [ LoggerModule::class ],
-                ComponentTypes::EX_HANDLER => [ ExHandlerModule::class ],
-                ComponentTypes::CACHE => [ CacheModule::class ],
+                componentTypes::APPLICATION => [ ModuleA::class, ModuleB::class, ModuleD::class ],
+                componentTypes::DI => [ DiModule::class ],
+                componentTypes::EVENTSTREAM => [ EventStreamModule::class ],
+                componentTypes::LOGGER => [ LoggerModule::class ],
+                componentTypes::EX_HANDLER => [ ExHandlerModule::class ],
+                componentTypes::CACHE => [ CacheModule::class ],
             ], $modules_by_component);
 
             // check sort logs
             $this->assertEquals([
-                0 => 'KnotLib\\Module\\Test\\ModuleA < KnotLib\\Module\\Test\\ModuleB(module dependency)',
-                1 => 'KnotLib\\Module\\Test\\ModuleB = KnotLib\\Module\\Test\\ModuleD',
-                2 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\DiModule(component priority)',
-                3 => 'KnotLib\\Module\\Test\\ModuleB > KnotLib\\Module\\Test\\Component\\DiModule(component priority)',
-                4 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\DiModule(component priority)',
-                5 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
-                6 => 'KnotLib\\Module\\Test\\ModuleB > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
-                7 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
-                8 => 'KnotLib\\Module\\Test\\Component\\DiModule > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
-                9 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
-                10 => 'KnotLib\\Module\\Test\\ModuleB > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
-                11 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
-                12 => 'KnotLib\\Module\\Test\\Component\\DiModule > KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
-                13 => 'KnotLib\\Module\\Test\\Component\\EventStreamModule < KnotLib\\Module\\Test\\Component\\LoggerModule(component priority)',
-                14 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\ExHandlerModule(component priority)',
-                15 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\ExHandlerModule(component priority)',
-                16 => 'KnotLib\\Module\\Test\\Component\\LoggerModule > KnotLib\\Module\\Test\\Component\\ExHandlerModule(component priority)',
-                17 => 'KnotLib\\Module\\Test\\Component\\ExHandlerModule > KnotLib\\Module\\Test\\Component\\EventStreamModule(component priority)',
-                18 => 'KnotLib\\Module\\Test\\ModuleD > KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
-                19 => 'KnotLib\\Module\\Test\\ModuleA > KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
-                20 => 'KnotLib\\Module\\Test\\Component\\LoggerModule < KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
-                21 => 'KnotLib\\Module\\Test\\Component\\DiModule > KnotLib\\Module\\Test\\Component\\CacheModule(component priority)',
+                0 => 'knotlib\\module\\test\\classes\\ModuleA < knotlib\\module\\test\\classes\\ModuleB(module dependency)',
+                1 => 'knotlib\\module\\test\\classes\\ModuleB = knotlib\\module\\test\\classes\\ModuleD',
+                2 => 'knotlib\\module\\test\\classes\\ModuleD > knotlib\\module\\test\\classes\\component\\DiModule(component priority)',
+                3 => 'knotlib\\module\\test\\classes\\ModuleB > knotlib\\module\\test\\classes\\component\\DiModule(component priority)',
+                4 => 'knotlib\\module\\test\\classes\\ModuleA > knotlib\\module\\test\\classes\\component\\DiModule(component priority)',
+                5 => 'knotlib\\module\\test\\classes\\ModuleD > knotlib\\module\\test\\classes\\component\\EventStreamModule(component priority)',
+                6 => 'knotlib\\module\\test\\classes\\ModuleB > knotlib\\module\\test\\classes\\component\\EventStreamModule(component priority)',
+                7 => 'knotlib\\module\\test\\classes\\ModuleA > knotlib\\module\\test\\classes\\component\\EventStreamModule(component priority)',
+                8 => 'knotlib\\module\\test\\classes\\component\\DiModule > knotlib\\module\\test\\classes\\component\\EventStreamModule(component priority)',
+                9 => 'knotlib\\module\\test\\classes\\ModuleD > knotlib\\module\\test\\classes\\component\\LoggerModule(component priority)',
+                10 => 'knotlib\\module\\test\\classes\\ModuleB > knotlib\\module\\test\\classes\\component\\LoggerModule(component priority)',
+                11 => 'knotlib\\module\\test\\classes\\ModuleA > knotlib\\module\\test\\classes\\component\\LoggerModule(component priority)',
+                12 => 'knotlib\\module\\test\\classes\\component\\DiModule > knotlib\\module\\test\\classes\\component\\LoggerModule(component priority)',
+                13 => 'knotlib\\module\\test\\classes\\component\\EventStreamModule < knotlib\\module\\test\\classes\\component\\LoggerModule(component priority)',
+                14 => 'knotlib\\module\\test\\classes\\ModuleD > knotlib\\module\\test\\classes\\component\\ExHandlerModule(component priority)',
+                15 => 'knotlib\\module\\test\\classes\\ModuleA > knotlib\\module\\test\\classes\\component\\ExHandlerModule(component priority)',
+                16 => 'knotlib\\module\\test\\classes\\component\\LoggerModule > knotlib\\module\\test\\classes\\component\\ExHandlerModule(component priority)',
+                17 => 'knotlib\\module\\test\\classes\\component\\ExHandlerModule > knotlib\\module\\test\\classes\\component\\EventStreamModule(component priority)',
+                18 => 'knotlib\\module\\test\\classes\\ModuleD > knotlib\\module\\test\\classes\\component\\CacheModule(component priority)',
+                19 => 'knotlib\\module\\test\\classes\\ModuleA > knotlib\\module\\test\\classes\\component\\CacheModule(component priority)',
+                20 => 'knotlib\\module\\test\\classes\\component\\LoggerModule < knotlib\\module\\test\\classes\\component\\CacheModule(component priority)',
+                21 => 'knotlib\\module\\test\\classes\\component\\DiModule > knotlib\\module\\test\\classes\\component\\CacheModule(component priority)',
             ], $sort_logs);
         });
 
