@@ -9,7 +9,8 @@ use KnotLib\Kernel\FileSystem\Dir;
 use KnotLib\Kernel\Kernel\ApplicationInterface;
 use KnotLib\Kernel\Module\ModuleInterface;
 use KnotLib\Module\ModuleDependencyResolver;
-use Stk2k\File\File;
+use Stk2k\FileSystem\File;
+use Stk2k\FileSystem\FileSystem;
 
 abstract class SimpleApplication extends AbstractApplication implements ApplicationInterface
 {
@@ -68,9 +69,9 @@ abstract class SimpleApplication extends AbstractApplication implements Applicat
                 $source_code .= "*/" . PHP_EOL;
                 $source_code .= "return " . var_export($this->getResolvedModules(), true) . ";" . PHP_EOL;
 
-                (new File($dependency_cache))->getParent()->makeDirectory();
+                (new File($dependency_cache))->getParent()->mkdir();
 
-                $res = file_put_contents($dependency_cache, $source_code);
+                $res = FileSystem::put($dependency_cache, $source_code);
                 if (!$res){
                     throw new ModuleInstallationException('Failed to create dependency cache: ' . $dependency_cache);
                 }

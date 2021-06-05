@@ -24,14 +24,14 @@ use PHPUnit\Framework\TestCase;
  * [Test Data]
  *                           | component type |  required components              | required modules |  extends  |
  * -------------------------------------------------------------------------------------------------------------------
- * ModuleA                   | MODULE         | EX_HANDLER,LOGGER,EVENTSTREAM     | -                | -         |
- * ModuleB                   | MODULE         | EX_HANDLER,LOGGER,EVENTSTREAM     | ModuleA          | -         |
- * ModuleC                   | MODULE         | -                                 | ModuleA,ModuleB  | -         |
- * ModuleD                   | MODULE         | CACHE,DI                          | -                | -         |
- * ModuleE                   | MODULE         | DI                                | -                | -         |
- * ModuleF                   | MODULE         | -                                 | ModuleG          | -         |
- * ModuleG                   | MODULE         | -                                 | ModuleF          | -         |
- * ModuleH                   | MODULE         | -                                 | -                | ModuleC   |
+ * ModuleA                   | APPLICATION    | EX_HANDLER,LOGGER,EVENTSTREAM     | -                | -         |
+ * ModuleB                   | APPLICATION    | EX_HANDLER,LOGGER,EVENTSTREAM     | ModuleA          | -         |
+ * ModuleC                   | APPLICATION    | -                                 | ModuleA,ModuleB  | -         |
+ * ModuleD                   | APPLICATION    | CACHE,DI                          | -                | -         |
+ * ModuleE                   | APPLICATION    | DI                                | -                | -         |
+ * ModuleF                   | APPLICATION    | -                                 | ModuleG          | -         |
+ * ModuleG                   | APPLICATION    | -                                 | ModuleF          | -         |
+ * ModuleH                   | APPLICATION    | -                                 | -                | ModuleC   |
  * Comp../CacheModule        | CACHE          | LOGGER                            | -                | -         |
  * Comp../DiModule           | DI             | EVENTSTREAM                       | -                | -         |
  * Comp../ExHandlerModule    | EX_HANDLER     | EVENTSTREAM                       | -                | -         |
@@ -64,21 +64,21 @@ use PHPUnit\Framework\TestCase;
  * [Test Pattern: 11-20]
  *                           | Case11 | Case12 | Case13 | Case14 | Case15 | Case16 | Case17 | Case18 | Case19 | Case20 |
  * ---------------------------------------------------------------------------------------------------------------------
- * ModuleA                   | O      | -      | O      | O      | O      | -      | -      | -      | -      | -      |
- * ModuleB                   | O      | -      | O      | O      | O      | -      | -      | -      | -      | -      |
- * ModuleC                   | -      | -      | -      | -      | -      | -      | -      | -      | -      | -      |
- * ModuleD                   | -      | O      | -      | -      | -      | -      | -      | -      | -      | -      |
- * ModuleE                   | -      | -      | -      | -      | -      | -      | -      | -      | -      | -      |
+ * ModuleA                   | O      | -      | O      | O      | O      | O      | O      | -      | -      | -      |
+ * ModuleB                   | O      | -      | O      | O      | O      | O      | O      | -      | -      | -      |
+ * ModuleC                   | -      | -      | -      | -      | -      | O      | O      | -      | -      | -      |
+ * ModuleD                   | -      | O      | -      | -      | -      | O      | O      | -      | -      | -      |
+ * ModuleE                   | -      | -      | -      | -      | -      | O      | O      | -      | -      | -      |
  * ModuleF                   | -      | -      | -      | -      | -      | -      | -      | -      | -      | -      |
  * ModuleG                   | -      | -      | -      | -      | -      | -      | -      | -      | -      | -      |
- * ModuleH                   | -      | -      | O      | -      | -      | -      | -      | -      | -      | -      |
- * Comp../CacheModule        | -      | O      | -      | -      | -      | -      | -      | -      | -      | -      |
- * Comp../DiModule           | -      | O      | -      | -      | O      | -      | -      | -      | -      | -      |
- * Comp../ExHandlerModule    | -      | O      | O      | O      | O      | -      | -      | -      | -      | -      |
- * Comp../LoggerModule       | -      | O      | O      | O      | O      | -      | -      | -      | -      | -      |
- * Comp../PipelineModule     | O      | O      | -      | O      | -      | -      | -      | -      | -      | -      |
- * Comp../EventStreamModule  | O      | O      | O      | O      | O      | -      | -      | -      | -      | -      |
- * Comp../ResponseModule     | O      | O      | -      | O      | -      | -      | -      | -      | -      | -      |
+ * ModuleH                   | -      | -      | O      | -      | -      | O      | O      | -      | -      | -      |
+ * Comp../CacheModule        | -      | O      | -      | -      | -      | -      | O      | -      | -      | -      |
+ * Comp../DiModule           | -      | O      | -      | -      | O      | -      | O      | -      | -      | -      |
+ * Comp../ExHandlerModule    | -      | O      | O      | O      | O      | -      | O      | -      | -      | -      |
+ * Comp../LoggerModule       | -      | O      | O      | O      | O      | -      | O      | -      | -      | -      |
+ * Comp../PipelineModule     | O      | O      | -      | O      | -      | -      | O      | -      | -      | -      |
+ * Comp../EventStreamModule  | O      | O      | O      | O      | O      | -      | O      | -      | -      | -      |
+ * Comp../ResponseModule     | O      | O      | -      | O      | -      | -      | O      | -      | -      | -      |
  * Comp../RouterModule       | -      | -      | -      | O      | -      | -      | -      | -      | -      | -      |
  *
  */
@@ -474,6 +474,70 @@ class ModuleDependencyResolverTest extends TestCase
                 DiModule::class,
                 ModuleA::class,
                 ModuleB::class,
+            ],
+            $result);
+    }
+
+    /**
+     * [Test Case 16]
+     * Router and response
+     *
+     * Modules: ModuleA, ModuleB, ModuleC, ModuleD, ModuleE, ModuleH
+     *
+     * @throws
+     */
+    public function testResolveCase16()
+    {
+        $resolver = new ModuleDependencyResolver([
+            ModuleA::class, ModuleB::class, ModuleC::class, ModuleD::class, ModuleE::class, ModuleH::class,
+        ]);
+
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                ModuleA::class,
+                ModuleB::class,
+                ModuleC::class,
+                ModuleD::class,
+                ModuleE::class,
+                ModuleH::class,
+            ],
+            $result);
+    }
+
+    /**
+     * [Test Case 17]
+     * Router and response
+     *
+     * Modules: ModuleA, ModuleB, ModuleC, ModuleD, ModuleE, ModuleH
+     *      CacheModule, LoggerModule, DiModule, PipelineModule, ExHandlerModule, EventStreamModule, ResponseModule
+     *
+     * @throws
+     */
+    public function testResolveCase17()
+    {
+        $resolver = new ModuleDependencyResolver([
+            ModuleA::class, ModuleB::class, ModuleC::class, ModuleD::class, ModuleE::class, ModuleH::class,
+            CacheModule::class, LoggerModule::class, DiModule::class, PipelineModule::class, ExHandlerModule::class,
+            EventStreamModule::class, ResponseModule::class,
+        ]);
+
+        $result = $resolver->resolve();
+        $this->assertSame(
+            [
+                EventStreamModule::class,
+                ExHandlerModule::class,
+                LoggerModule::class,
+                ResponseModule::class,
+                PipelineModule::class,
+                CacheModule::class,
+                DiModule::class,
+                ModuleA::class,
+                ModuleB::class,
+                ModuleC::class,
+                ModuleD::class,
+                ModuleE::class,
+                ModuleH::class,
             ],
             $result);
     }

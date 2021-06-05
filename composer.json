@@ -12,13 +12,13 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.2",
     "ext-json": "*",
-    "stk2k/file": "~0.1",
+    "stk2k/file-system": "~0.1",
     "knot-lib/support": "~0.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.3.0",
+    "phpunit/phpunit": "^8.5.15",
     "php-coveralls/php-coveralls": "^2.0",
     "mikey179/vfsstream": "1.3.*"
   },

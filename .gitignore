@@ -6,3 +6,4 @@ build/*
 coverage/*
 sample/cache/*
 test/files/cache/*
+.phpunit.result.cache

@@ -22,7 +22,7 @@ knot-lib/module is a module system for kNot Framework.
 
 ## Requirement
 
-PHP 7.1 or later
+PHP 7.2 or later
 
 ## Installing knot-lib/module
 
